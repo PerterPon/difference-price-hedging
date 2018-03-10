@@ -1,0 +1,22 @@
+{   
+    "compilerOptions": {
+        "target": "es6",
+        "outDir": "./build",
+        "allowJs": true,
+        "module": "commonjs",
+        "lib": [
+            "es2017",
+            "es2016"
+        ],
+        "baseUrl": "./src"
+    },
+    "files": [
+        "./node_modules/moment/moment.d.ts"
+    ],
+    "include": [
+        "./src/**/*",
+    ],
+    "exclude" : [
+        "node_modules"
+    ]
+}

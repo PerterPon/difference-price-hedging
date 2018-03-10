@@ -1,0 +1,19 @@
+{
+    "name" : "dph",
+    "scripts" : {
+        "dev"   : "tsc && node ./build/index",
+        "build" : "tsc"
+    },
+    "dependencies": {
+        "websocket" : "1.0.25",
+        "lodash" : "4.17.5",
+        "moment" : "2.21.0",
+        "@types/node" : "*",
+        "@types/lodash" : "*",
+        "@types/moment" : "*",
+        "@types/websocket" : "*"
+    },
+    "engines": {
+        "node": ">=8.0.0"
+    }
+}
