@@ -1,8 +1,9 @@
 {
     "name" : "dph",
     "scripts" : {
-        "dev"   : "tsc && node ./build/index",
-        "build" : "tsc"
+        "dev"   : "tsc && cd build && NODE_PATH=. node index",
+        "build" : "tsc",
+        "debug" : "tsc && NODE_PATH=. node ./build/index.js"
     },
     "dependencies": {
         "websocket" : "1.0.25",
@@ -11,7 +12,8 @@
         "@types/node" : "*",
         "@types/lodash" : "*",
         "@types/moment" : "*",
-        "@types/websocket" : "*"
+        "@types/websocket" : "*",
+        "binance" : "*"
     },
     "engines": {
         "node": ">=8.0.0"

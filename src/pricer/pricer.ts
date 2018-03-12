@@ -6,8 +6,24 @@
 
 import { EventEmitter } from 'events';
 
-export class Pricer extends EventEmitter {
+export type BookData = {
+  bidPrice: number;
+  bidCount: number;
+  askPrice: number;
+  askCount: number;
+};
 
-    public 
+export type TickData = {
+  high: number;
+  open: number;
+  low: number;
+  close: number;
+};
+
+export interface PricerInterface {
+
+  init(): Promise<void>;
+  getBook(): Promise<BookData>;
+  getTick(): Promise<TickData>;
 
 }
