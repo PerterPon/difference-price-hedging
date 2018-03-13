@@ -91,7 +91,6 @@ function calProfit( bidPrice: number, askPrice: number, bidFeed: number, askFeed
   const totalFeeds = ( bidPrice * bidFeed ) + ( askPrice * askFeed );
   const dis = bidPrice - askPrice;
 
-  console.log( `distance: [${dis}], feeds: [${totalFeeds}]` );
   return dis - totalFeeds * ( 1 + TH_BUFFER );
 
 }

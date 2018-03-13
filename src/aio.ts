@@ -65,6 +65,10 @@ export class AIO {
         } else if ( false === b.buy && true === b.sell ) {
           bTrader.sell( b.price, b.count );
         }
+
+        log.log( '=========================' );
+        log.log( `|| total cash: [${aTrader.balance.cash + bTrader.balance.cash}], cash: [${aTrader.balance.coin + bTrader.balance.coin}]` );
+        log.log( '=========================' );
   
       } catch( e ) {
         console.log( e.message );
