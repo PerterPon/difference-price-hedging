@@ -60,6 +60,11 @@ export class Compare {
         const action:THAction = BookTh( aBook, bBook, aFeed, bFeed, aBalance, bBalance );
 
         if ( null !== action ) {
+            this.pricePool = {
+                a: {},
+                b: {}
+            } as PricePool;
+
             if ( true === _.isFunction( this.actionDone ) ) {
                 this.actionDone( action );
             }

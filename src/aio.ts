@@ -25,8 +25,8 @@ type Pricers = {
 };
 
 type Traders = {
-  a: BitfinexTrader;
-  b: BianTrader;
+  a: Trader;
+  b: Trader;
 };
 
 export class AIO {
@@ -47,8 +47,8 @@ export class AIO {
     log.log( 'init compare ...' );
     this.compare = new Compare();
     const { traders } = this;
-    const aTrader: BitfinexTrader = traders.a;
-    const bTrader: BianTrader = traders.b;
+    const aTrader: Trader = traders.a;
+    const bTrader: Trader = traders.b;
     while( 1 ) {
       try {
         const action: THAction = await this.compare.getAction();
@@ -97,7 +97,7 @@ export class AIO {
 
     try {
       while ( 1 ) {
-        const trader: BitfinexTrader = this.traders.a;
+        const trader: Trader = this.traders.a;
         const data = await pricer.getBook();
         this.compare.updateA( data, this.traders.a.feeds, trader.balance );
       }
@@ -115,7 +115,7 @@ export class AIO {
 
     try {
       while ( 1 ) {
-        const trader: BianTrader = this.traders.b;
+        const trader: Trader = this.traders.b;
         const data = await bianPricer.getBook();
         this.compare.updateB( data, this.traders.b.feeds, trader.balance );
       }
