@@ -4,9 +4,11 @@
   Create: Sat Mar 10 2018 08:01:44 GMT+0800 (CST)
 */
 
-import { PricerInterface, BookData, TickData } from './pricer';
+import { PricerInterface, TickData } from './pricer';
 import * as _ from 'lodash';
 import * as Binance from 'binance/lib/binance';
+
+import { BookData } from 'exchange-types';
 
 export class BianPricer implements PricerInterface {
 
@@ -35,14 +37,20 @@ export class BianPricer implements PricerInterface {
         const askFirst = askDepthDelta[ 0 ];
         if ( bidFirst ) {
             const { price, quantity } = bidFirst;
-            currentBookData.bidPrice = price;
-            currentBookData.bidCount = quantity;
+            currentBookData.bidPrice = +price;
+            if ( 0 === +quantity ) {
+                return;
+            }
+            currentBookData.bidCount = +quantity;
         }
 
         if ( askFirst ) {
             const { price, quantity } = askFirst;
-            currentBookData.askPrice = price;
-            currentBookData.askCount = quantity;
+            currentBookData.askPrice = +price;
+            if ( 0 === +quantity ) {
+                return;
+            }
+            currentBookData.askCount = +quantity;
         }
 
         if( true === _.isFunction( this.bookDataDone ) ) {

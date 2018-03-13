@@ -19,6 +19,7 @@
     ],
     "include": [
         "./src/**/*",
+        "./src/core/data.json"
     ],
     "exclude" : [
         "node_modules"

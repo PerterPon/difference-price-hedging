@@ -4,10 +4,11 @@
   Create: Sat Mar 10 2018 08:01:44 GMT+0800 (CST)
 */
 
-import { PricerInterface, BookData, TickData } from './pricer';
+import { PricerInterface, TickData } from './pricer';
 import * as _ from 'lodash';
 import { BitfinexConnection, ChannelId } from 'connections/bitfinex-connection';
 import { ConnectionEvents } from 'core/enums/connection';
+import { BookData } from 'exchange-types';
 
 type BookUpdateData = [
     ChannelId,
@@ -80,7 +81,7 @@ export class BitfinexPricer implements PricerInterface {
             currentBookData.bidCount = Math.abs( amount );
         } else {
             currentBookData.askPrice = price;
-            currentBookData.bidCount = Math.abs( amount );
+            currentBookData.askCount = Math.abs( amount );
         }
 
         if ( true === _.isFunction( this.bookDataDone ) ) {

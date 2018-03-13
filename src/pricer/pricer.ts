@@ -6,12 +6,7 @@
 
 import { EventEmitter } from 'events';
 
-export type BookData = {
-  bidPrice: number;
-  bidCount: number;
-  askPrice: number;
-  askCount: number;
-};
+import { BookData } from 'exchange-types';
 
 export type TickData = {
   high: number;
