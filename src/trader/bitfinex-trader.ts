@@ -16,8 +16,8 @@ export class BitfinexTrader extends Trader {
     };
 
     public balance: Balance = {
-        cash: 10000000,
-        coin: 1000000
+        cash: 100000,
+        coin: 10
     };
 
     public name: string = 'bitfinex';
