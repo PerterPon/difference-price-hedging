@@ -7,7 +7,7 @@
 import * as moment from "moment";
 
 function getNowTime(): string {
-    return moment().format( 'YYYY-MM-DD hh:mm:ss' );
+    return moment().format( 'YYYY-MM-DD HH:mm:ss' );
 }
 
 function collectionLog( moduleName: string, message: string ): string {
@@ -43,6 +43,9 @@ export default function ( moduleName ){
             const log: string = collectionLog( moduleName, message );
             console.debug( log );
 
+        },
+        assemblyLog( moduleName: string, content: string ): string {
+            return `${collectionLog( moduleName, content )}\n`;
         }
     }
 

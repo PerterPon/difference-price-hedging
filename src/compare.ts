@@ -4,40 +4,35 @@
   Create: Mon Mar 12 2018 06:17:18 GMT+0800 (CST)
 */
 
-import { BookTh } from './strategys/book-dh';
+import { MultiBookTh } from './strategys/multi-book-dh';
 import * as _ from 'lodash';
 
-import { BookData } from 'exchange-types';
-import { Feeds, THAction, TradeAction, Balance } from 'trade-types';
-
-type Exchange = {
-    book: BookData,
-    feeds: Feeds,
-    balance: Balance;
-}
-
-type PricePool = {
-    a : Exchange;
-    b : Exchange;
-};
+import { BookData, Exchange } from 'exchange-types';
+import { Feeds, THAction, TradeAction, Balance, TradeName } from 'trade-types';
 
 export class Compare {
 
     private actionDone: ( action: THAction ) => void;
+    private pricePool: Map<TradeName, Exchange> = new Map();
 
-    private pricePool: PricePool = {
-        a : {},
-        b : {}
-    } as PricePool;
+    public update( name: TradeName, book: BookData, feeds: Feeds, balance: Balance ): void {
 
-    public updateA( book: BookData, feeds: Feeds, balance: Balance ): void {
-        this.pricePool.a = { book, feeds, balance };
-        this.priceUpdate();
-    }
+        let excuableCount: number = 0;
 
-    public updateB( book: BookData, feeds: Feeds, balance: Balance ): void {
-        this.pricePool.b = { book, feeds, balance };
-        this.priceUpdate();
+        this.pricePool.set( name, {
+            book,
+            feeds,
+            balance
+        } );
+
+        for( let [ name, Exchange ] of this.pricePool ) {
+            excuableCount++;
+        }
+
+        if ( excuableCount >= 2 ) {
+            this.priceUpdate();
+        }
+
     }
 
     public async getAction(): Promise<THAction> {
@@ -47,29 +42,14 @@ export class Compare {
     }
 
     private priceUpdate(): void {
-        const aBook: BookData = this.pricePool.a.book;
-        const aFeed: Feeds = this.pricePool.a.feeds;
-        const aBalance: Balance = this.pricePool.a.balance;
-        const bBook: BookData = this.pricePool.b.book;
-        const bFeed: Feeds = this.pricePool.b.feeds;
-        const bBalance: Balance = this.pricePool.b.balance;
-
-        if ( !aBook || !bBook || !aFeed || !bFeed ) {
-            return;
-        }
-        const action:THAction = BookTh( aBook, bBook, aFeed, bFeed, aBalance, bBalance );
-
+        const { pricePool } = this;
+        const action: THAction = MultiBookTh( pricePool );
         if ( null !== action ) {
-            this.pricePool = {
-                a: {},
-                b: {}
-            } as PricePool;
-
-            if ( true === _.isFunction( this.actionDone ) ) {
-                this.actionDone( action );
+            for( let [ name, trader ] of action ) {
+                this.pricePool.delete( name );
             }
+            this.actionDone( action );
         }
-
     }
 
 }

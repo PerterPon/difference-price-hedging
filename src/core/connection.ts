@@ -103,7 +103,6 @@ export class Connection extends EventEmitter {
             this.onData( data.utf8Data );
             // this.emit( ConnectionEvents.DATA, data.utf8Data );
         }
-
     }
 
     protected onData( data: string ): void {
@@ -136,6 +135,7 @@ export class Connection extends EventEmitter {
         if ( true === this.pongData( data ) ) {
             clearTimeout( this.pingTimeout );
             log.log( 'pong' );
+            setTimeout( this.ping.bind( this ), HEARTBREAT_TIMEOUT );
             return true;
         }
 

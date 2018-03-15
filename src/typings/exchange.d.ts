@@ -1,6 +1,8 @@
 
 declare module "exchange-types" {
 
+    import { Feeds, Balance } from 'trade-types';
+
     export type BookData = {
         bidPrice: number;
         bidCount: number;
@@ -12,5 +14,11 @@ declare module "exchange-types" {
         price: number;
         count: number;
     }
+
+    export type Exchange = {
+        book: BookData;
+        feeds: Feeds;
+        balance: Balance;
+    };
 
 }

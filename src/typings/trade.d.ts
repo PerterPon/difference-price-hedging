@@ -1,6 +1,8 @@
 
 declare module "trade-types" {
 
+    export type TradeName = string;
+
     export type Trade = {
         feeds: Feeds;
         balance: Balance;
@@ -23,9 +25,6 @@ declare module "trade-types" {
         count: number;
     };
 
-    export type THAction = {
-        a: TradeAction;
-        b: TradeAction;
-    };
+    export type THAction = Map<TradeName, TradeAction>;
 
 }

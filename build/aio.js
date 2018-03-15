@@ -18,12 +18,16 @@ const bian_pricer_1 = require("pricer/bian-pricer");
 const bian_trader_1 = require("trader/bian-trader");
 const bitfinex_trader_1 = require("trader/bitfinex-trader");
 const compare_1 = require("./compare");
+const excutor_1 = require("./excutor");
+const repotor_1 = require("repotor");
 const log_1 = require("core/log");
 const log = log_1.default('AIO');
+const BFX_TRADE = 'bitfinex';
+const BIAN_TRADE = 'binance';
 class AIO {
     constructor() {
-        this.pricers = {};
-        this.traders = {};
+        this.pricers = new Map();
+        this.traders = new Map();
     }
     start() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -37,41 +41,25 @@ class AIO {
             log.log('init compare ...');
             this.compare = new compare_1.Compare();
             const { traders } = this;
-            const aTrader = traders.a;
-            const bTrader = traders.b;
-            while (1) {
+            while (true) {
                 try {
+                    // 获得操作action
                     const action = yield this.compare.getAction();
-                    const a = action.a;
-                    const b = action.b;
-                    if (true === a.buy && false === a.sell) {
-                        aTrader.buy(a.price, a.count);
-                    }
-                    else if (false === a.buy && true === a.sell) {
-                        aTrader.sell(a.price, a.count);
-                    }
-                    if (true === b.buy && false === b.sell) {
-                        bTrader.buy(b.price, b.count);
-                    }
-                    else if (false === b.buy && true === b.sell) {
-                        bTrader.sell(b.price, b.count);
-                    }
-                    log.log('=========================');
-                    log.log(`|| total cash: [${aTrader.balance.cash + bTrader.balance.cash}], cash: [${aTrader.balance.coin + bTrader.balance.coin}]`);
-                    log.log('=========================');
+                    // 执行操作
+                    excutor_1.excute(action, traders);
+                    // 汇报
+                    repotor_1.reportTotal(traders);
                 }
                 catch (e) {
-                    console.log(e.message);
-                    console.log('-------------');
-                    console.log(e.stack);
+                    repotor_1.reportError(e);
                 }
             }
         });
     }
     initTrader() {
         log.log('init trader ...');
-        this.traders.a = new bitfinex_trader_1.BitfinexTrader();
-        this.traders.b = new bian_trader_1.BianTrader();
+        this.traders.set(BFX_TRADE, new bitfinex_trader_1.BitfinexTrader);
+        this.traders.set(BIAN_TRADE, new bian_trader_1.BianTrader);
     }
     initPricer() {
         log.log('init pricer ...');
@@ -81,40 +69,63 @@ class AIO {
     bfxBook() {
         return __awaiter(this, void 0, void 0, function* () {
             const pricer = new bitfinex_pricer_1.BitfinexPricer('tBTCUSD');
-            this.pricers.a = pricer;
+            this.pricers.set(BFX_TRADE, pricer);
             yield pricer.init();
             try {
-                while (1) {
-                    const trader = this.traders.a;
+                while (true) {
+                    const trader = this.traders.get(BFX_TRADE);
                     const data = yield pricer.getBook();
-                    this.compare.updateA(data, this.traders.a.feeds, trader.balance);
+                    const usage = this.checkPriceAndCountUsage(BFX_TRADE, data);
+                    if (false === usage) {
+                        repotor_1.reportLatestPrice(BFX_TRADE, data);
+                        this.compare.update(BFX_TRADE, data, trader.feeds, trader.balance);
+                    }
                 }
             }
             catch (e) {
-                console.log(e.message);
-                console.log('-------------');
-                console.log(e.stack);
+                repotor_1.reportError(e);
             }
         });
     }
     binanceBook() {
         return __awaiter(this, void 0, void 0, function* () {
             const bianPricer = new bian_pricer_1.BianPricer('BTCUSDT');
-            this.pricers.b = bianPricer;
+            this.pricers.set(BIAN_TRADE, bianPricer);
             yield bianPricer.init();
             try {
-                while (1) {
-                    const trader = this.traders.b;
+                while (true) {
+                    const trader = this.traders.get(BIAN_TRADE);
                     const data = yield bianPricer.getBook();
-                    this.compare.updateB(data, this.traders.b.feeds, trader.balance);
+                    const usage = this.checkPriceAndCountUsage(BIAN_TRADE, data);
+                    if (false === usage) {
+                        repotor_1.reportLatestPrice(BIAN_TRADE, data);
+                        this.compare.update(BIAN_TRADE, data, trader.feeds, trader.balance);
+                    }
                 }
             }
             catch (e) {
-                console.log(e.message);
-                console.log('-------------');
-                console.log(e.stack);
+                repotor_1.reportError(e);
             }
         });
+    }
+    checkPriceAndCountUsage(name, data) {
+        let result = false;
+        if (void (0) !== this.currentAction) {
+            const action = this.currentAction.get(name);
+            const { sell, buy, price, count } = action;
+            let bookPrice;
+            let bookCount;
+            if (true === sell && false === buy) {
+                bookPrice = data.bidPrice;
+                bookCount = data.bidCount;
+            }
+            else if (false === sell && true === buy) {
+                bookPrice = data.askPrice;
+                bookPrice = data.bidPrice;
+            }
+            result = price === bookPrice && count === bookCount;
+        }
+        return result;
     }
 }
 exports.AIO = AIO;

@@ -21,7 +21,6 @@ export class BitfinexTrader extends Trader {
     };
 
     public name: string = 'bitfinex';
-
     protected log = Log( 'bitfinex' );
 
 }

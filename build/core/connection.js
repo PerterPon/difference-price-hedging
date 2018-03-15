@@ -124,6 +124,7 @@ class Connection extends events_1.EventEmitter {
         if (true === this.pongData(data)) {
             clearTimeout(this.pingTimeout);
             log.log('pong');
+            setTimeout(this.ping.bind(this), HEARTBREAT_TIMEOUT);
             return true;
         }
         return false;

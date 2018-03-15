@@ -84,6 +84,10 @@ export class BitfinexPricer implements PricerInterface {
             currentBookData.askCount = Math.abs( amount );
         }
 
+        if ( !currentBookData.askPrice || !currentBookData.bidPrice ) {
+            return;
+        }
+
         if ( true === _.isFunction( this.bookDataDone ) ) {
             this.bookDataDone( currentBookData );
         }

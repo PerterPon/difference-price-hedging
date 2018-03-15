@@ -4,93 +4,93 @@
   Create: Mon Mar 12 2018 06:17:18 GMT+0800 (CST)
 */
 
-import { BookData } from 'exchange-types';
-import { Trade, Feeds, TradeAction, THAction, Balance } from 'trade-types';
+// import { BookData } from 'exchange-types';
+// import { Trade, Feeds, TradeAction, THAction, Balance } from 'trade-types';
 
-const TH_BUFFER: number = 0;
+// const TH_BUFFER: number = 0;
 
-export function BookTh( aBook: BookData, bBook: BookData, aFeeds: Feeds, bFeeds: Feeds, aBalance: Balance, bBalance: Balance ): THAction {
+// export function BookTh( aBook: BookData, bBook: BookData, aFeeds: Feeds, bFeeds: Feeds, aBalance: Balance, bBalance: Balance ): THAction {
 
-  const aBidPrice: number = aBook.bidPrice;
-  const bAskPrice: number = bBook.askPrice;
+//   const aBidPrice: number = aBook.bidPrice;
+//   const bAskPrice: number = bBook.askPrice;
 
-  let bidPrice: number = 0;
-  let askPrice: number = 0;
-  let bidFeed: number  = 0;
-  let askFeed: number  = 0;
+//   let bidPrice: number = 0;
+//   let askPrice: number = 0;
+//   let bidFeed: number  = 0;
+//   let askFeed: number  = 0;
 
-  let profit: number = 0;
-  let action: THAction = null;
+//   let profit: number = 0;
+//   let action: THAction = null;
 
-  if ( aBook.bidPrice > bBook.askPrice ) {
-    bidPrice = aBook.bidPrice;
-    bidFeed  = aFeeds.sell;
-    askPrice = bBook.askPrice;
-    askFeed  = bFeeds.buy;
-    profit = calProfit( bidPrice, askPrice, bidFeed, askFeed );
-    if ( profit > 0 ) {
+//   if ( aBook.bidPrice > bBook.askPrice ) {
+//     bidPrice = aBook.bidPrice;
+//     bidFeed  = aFeeds.sell;
+//     askPrice = bBook.askPrice;
+//     askFeed  = bFeeds.buy;
+//     profit = calProfit( bidPrice, askPrice, bidFeed, askFeed );
+//     if ( profit > 0 ) {
 
-      let count: number = Math.min( aBook.bidCount, bBook.askCount );
+//       let count: number = Math.min( aBook.bidCount, bBook.askCount );
 
-      let aCoin: number = aBalance.coin;
-      let bCashCoin: number = bBalance.cash / askPrice;
-      count = Math.min( count, aCoin, bCashCoin );
+//       let aCoin: number = aBalance.coin;
+//       let bCashCoin: number = bBalance.cash / askPrice;
+//       count = Math.min( count, aCoin, bCashCoin );
 
-      action = {
-        a: {
-          buy: false,
-          sell: true,
-          price: bidPrice,
-          count: count
-        },
-        b: {
-          buy: true,
-          sell: false,
-          price: askPrice,
-          count: count
-        }
-      };
-    }
+//       action = {
+//         a: {
+//           buy: false,
+//           sell: true,
+//           price: bidPrice,
+//           count: count
+//         },
+//         b: {
+//           buy: true,
+//           sell: false,
+//           price: askPrice,
+//           count: count
+//         }
+//       };
+//     }
 
-  } else if ( aBook.askPrice < bBook.bidPrice ) {
-    bidPrice = bBook.bidPrice;
-    bidFeed  = bFeeds.sell;
-    askPrice = aBook.askPrice;
-    askFeed  = aFeeds.buy;
-    profit = calProfit( bidPrice, askPrice, bidFeed, askFeed );
-    if ( profit > 0 ) {
-      let count: number = Math.min( aBook.askCount, bBook.bidCount );
+//   } else if ( aBook.askPrice < bBook.bidPrice ) {
+//     bidPrice = bBook.bidPrice;
+//     bidFeed  = bFeeds.sell;
+//     askPrice = aBook.askPrice;
+//     askFeed  = aFeeds.buy;
+//     profit = calProfit( bidPrice, askPrice, bidFeed, askFeed );
+//     if ( profit > 0 ) {
+//       let count: number = Math.min( aBook.askCount, bBook.bidCount );
 
-      let aCashCoin: number = aBalance.cash / askPrice;
-      let bCoin: number = bBalance.coin;
+//       let aCashCoin: number = aBalance.cash / askPrice;
+//       let bCoin: number = bBalance.coin;
 
-      count = Math.min( count, aCashCoin, bCoin );
+//       count = Math.min( count, aCashCoin, bCoin );
 
-      action = {
-        a: {
-          buy: true,
-          sell: false,
-          price: askPrice,
-          count: count
-        },
-        b: {
-          buy: false,
-          sell: true,
-          price: bidPrice,
-          count: count
-        }
-      };
-    }
-  }
+//       action = {
+//         a: {
+//           buy: true,
+//           sell: false,
+//           price: askPrice,
+//           count: count
+//         },
+//         b: {
+//           buy: false,
+//           sell: true,
+//           price: bidPrice,
+//           count: count
+//         }
+//       };
+//     }
+//   }
 
-  return action;
-}
+//   return action;
+// }
 
-function calProfit( bidPrice: number, askPrice: number, bidFeed: number, askFeed: number ): number {
+// function calProfit( bidPrice: number, askPrice: number, bidFeed: number, askFeed: number ): number {
 
-  const totalFeeds = ( bidPrice * bidFeed ) + ( askPrice * askFeed );
-  const dis = bidPrice - askPrice;
+//   const totalFeeds = ( bidPrice * bidFeed ) + ( askPrice * askFeed );
+//   const dis = bidPrice - askPrice;
 
-  return dis - totalFeeds * ( 1 + TH_BUFFER );
+//   return dis - totalFeeds * ( 1 + TH_BUFFER );
 
-}
+// }

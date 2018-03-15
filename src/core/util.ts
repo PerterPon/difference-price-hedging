@@ -16,3 +16,15 @@ export async function sleep( time: Second ): Promise<any> {
     } );
 
 }
+
+export function stringMap2Object( map: Map<string|number, any> ): Object {
+
+    const obj: Object = {};
+
+    for( let [ name, value ] of map ) {
+        obj[ `${name}` ] = value;
+    }
+
+    return obj;
+
+}
