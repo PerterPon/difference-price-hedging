@@ -96,9 +96,9 @@ export function reportFeeds( totalFeeds: number, buyFeeds: number, sellFeeds: nu
 
 export function reportLatestProfit( dis: number, feed: number, profit: number ): void {
     const content: string = `profit: [${ profit}], distance: [${dis}], feed: [${feed}]`;
-    log.log( '=========== profit ==================' );
-    log.log( `|| ${content}` );
-    log.log( '=====================================' );
+    // log.log( '=========== profit ==================' );
+    // log.log( `|| ${content}` );
+    // log.log( '=====================================' );
     const profitContent: string = log.assemblyLog( 'profit', content );
     profitWriter.updateContent( profitContent );
 }
