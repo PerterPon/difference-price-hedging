@@ -15,6 +15,8 @@ const log = Log( 'REPOTOR' );
 
 const priceWriter: Writer = new Writer( 'price' );
 const profitWriter: Writer = new Writer( 'profit' );
+profitWriter.updateLatest = true;
+
 const feedsWriter: Writer = new Writer( 'feed' );
 const totalWriter: Writer = new Writer( 'total' );
 const actionWriter: Writer = new Writer( 'action' );

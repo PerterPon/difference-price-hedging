@@ -23,6 +23,8 @@ export class Writer {
     private name: string;
     private targetFile: string;
 
+    public updateLatest: boolean = false;
+
     constructor( name: string ) {
         this.name = name;
         this.targetFile = path.join( __dirname, '../log', `${ name }.log` );
@@ -55,7 +57,11 @@ export class Writer {
     }
 
     public updateContent( content: string ): void {
-        this.pool += content;
+        if ( true === this.updateLatest ) {
+            this.pool = content;
+        } else {
+            this.pool += content;
+        }
     }
 
 }
