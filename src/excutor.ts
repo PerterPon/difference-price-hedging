@@ -5,7 +5,7 @@
 */
 
 import { Trader } from 'trader/trader';
-import { reportFeeds } from 'repotor';
+import { reportFeeds, reportAction } from 'repotor';
 
 import { THAction, TradeName, TradeAction, Feeds } from 'trade-types';
 
@@ -36,5 +36,7 @@ export async function excute( actions: THAction, traders: Map<TradeName, Trader>
         reportFeeds( totalFeeds, buyFeeds, sellFeeds );
 
     }
+
+    reportAction( actions );
 
 }

@@ -12,9 +12,19 @@ import { Trade, Feeds, TradeAction, THAction, Balance, TradeName } from 'trade-t
 
 const TH_BUFFER: number = 0;
 
+type BestBidAndAskPrice = {
+    bid: TradeName,
+    ask: TradeName
+};
+
 export function MultiBookTh( data: Map<TradeName, Exchange> ): THAction {
 
-    const { ask, bid } = getBestBidAndAskTrande( data );
+    const bestBA: BestBidAndAskPrice = getBestBidAndAskTrade( data );
+    if ( null === bestBA ) {
+        return null;
+    }
+
+    const { ask, bid } = bestBA;
 
     const askExchange: Exchange = data.get( ask );
     const bidExchange: Exchange = data.get( bid );
@@ -47,15 +57,15 @@ export function MultiBookTh( data: Map<TradeName, Exchange> ): THAction {
 
     const action: THAction = new Map();
     const askAction: TradeAction = {
-        buy: false,
-        sell: true,
+        buy: true,
+        sell: false,
         price: askPrice,
         count: count
     };
     action.set( ask, askAction );
     const bidAction: TradeAction = {
-        buy: true,
-        sell: false,
+        buy: false,
+        sell: true,
         price: bidPrice,
         count: count
     };
@@ -64,7 +74,7 @@ export function MultiBookTh( data: Map<TradeName, Exchange> ): THAction {
     return action;
 }
 
-function getBestBidAndAskTrande( data: Map<TradeName, Exchange> ): { ask: TradeName, bid: TradeName } {
+function getBestBidAndAskTrade( data: Map<TradeName, Exchange> ): { ask: TradeName, bid: TradeName } {
     const asks: Map<number, TradeName> = new Map();
     const bids: Map<number, TradeName> = new Map();
 
@@ -89,6 +99,10 @@ function getBestBidAndAskTrande( data: Map<TradeName, Exchange> ): { ask: TradeN
 
     const bestBidTradeName: TradeName = bids.get( bestBidPrice );
     const bestAskTradeName: TradeName = asks.get( bestAskPrice );
+
+    if ( bestAskTradeName === bestBidTradeName ) {
+        return null;
+    }
 
     return {
         ask: bestAskTradeName,

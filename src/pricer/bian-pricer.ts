@@ -4,7 +4,7 @@
   Create: Sat Mar 10 2018 08:01:44 GMT+0800 (CST)
 */
 
-import { PricerInterface, TickData } from './pricer';
+import { PricerInterface } from './pricer';
 import * as _ from 'lodash';
 import * as Binance from 'binance/lib/binance';
 
@@ -61,12 +61,6 @@ export class BianPricer implements PricerInterface {
     public async getBook(): Promise<BookData> {
         return new Promise<BookData>( ( resolve, reject ) => {
             this.bookDataDone = resolve;
-        } );
-    }
-
-    public async getTick(): Promise<TickData> {
-        return new Promise<TickData>( ( resolve, reject ) => {
-
         } );
     }
 

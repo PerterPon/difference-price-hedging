@@ -14,6 +14,7 @@ const CONNECT_FAILED_EVENT: string = 'connectFailed';
 const CONNECT_EVENT: string = 'connect';
 const MODULE_NAME: string = 'CONNECTION';
 const HEARTBREAT_TIMEOUT: number = 10 * 1000;
+const RECONNECT_TIME: number = 3 * 1000;
 
 const log = Log( MODULE_NAME );
 
@@ -60,11 +61,15 @@ export class Connection extends EventEmitter {
         this.connection.send( data );
     }
 
+    protected dealBinaryData( buffer: Buffer ): string {
+        return null;
+    }
+
     private async onConnectFailed( error: Error ): Promise<void> {
         log.error( error.message );
         log.error( error.stack );
         log.warn( `[${ this.name}] connection failed! waiting for reconnection!` );
-        await Util.sleep( 3 );
+        await Util.sleep( RECONNECT_TIME );
         this.connect();
     }
 
@@ -80,27 +85,38 @@ export class Connection extends EventEmitter {
 
     private async onClose(): Promise<void> {
         log.log( `[${ this.name}] connection closed, waiting for reconnect` );
-        await Util.sleep( 3 );
+        await Util.sleep( RECONNECT_TIME );
         this.connect();
     }
 
     private async onError( error: Error ): Promise<void> {
         log.log( `[${ this.name }] connection closed, waiting for reconnect` );
-        await Util.sleep( 3 );
+        await Util.sleep( RECONNECT_TIME );
         this.connect();
     }
 
     private onMessage( data: IMessage ): void {
+        let resData: string = null;
         if ( WSDataType.UTF8 === data.type ) {
-            // log.log( `[${ this.name}] got ws data: ${data.utf8Data}` );
-        } else if ( WSDataType.BINARY === data.type ) {
-            log.warn( `[${ this.name}] got ws binary data, ignore it!` );
+            log.log( `[${ this.name }] got binary data: ${data.utf8Data}` );
+            resData = data.utf8Data;
+        } else if ( WSDataType.BINARY === data.type ) {            
+            resData = this.dealBinaryData( data.binaryData );
+            if ( resData === null ) {
+                log.warn( `[${ this.name }] got ws binary data, ignore it!` );
+                return;
+            }
+        }
+
+        const serverPing: string = this.serverPing( resData );
+        if ( void( 0 ) != serverPing ) {
+            this.send( serverPing );
             return;
         }
 
-        const pongData: boolean = this.pong( data.utf8Data );
+        const pongData: boolean = this.pong( resData );
         if ( false === pongData ) {
-            this.onData( data.utf8Data );
+            this.onData( resData );
             // this.emit( ConnectionEvents.DATA, data.utf8Data );
         }
     }
@@ -140,6 +156,10 @@ export class Connection extends EventEmitter {
         }
 
         return false;
+    }
+
+    protected serverPing( data: string ): string {
+        return null;
     }
 
 }

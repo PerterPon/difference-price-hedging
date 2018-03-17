@@ -4,11 +4,22 @@
   Create: Sat Mar 10 2018 08:01:44 GMT+0800 (CST)
 */
 
-import { PricerInterface, TickData } from './pricer';
+import { PricerInterface } from './pricer';
 import * as _ from 'lodash';
 import { BitfinexConnection, ChannelId } from 'connections/bitfinex-connection';
 import { ConnectionEvents } from 'core/enums/connection';
 import { BookData } from 'exchange-types';
+import * as BFX from 'bitfinex-api-node';
+
+const bfx = new BFX( {
+    apiKey: 'xx',
+    apiSecret: 'xxx',
+    ws : {
+        autoReconnect: true,
+        seqAudit : true,
+        packetWDDelay: 10 * 1000
+    }
+} );
 
 type BookUpdateData = [
     ChannelId,
@@ -112,12 +123,6 @@ export class BitfinexPricer implements PricerInterface {
     public getBook(): Promise<BookData> {
         return new Promise<BookData>( ( resolve, reject ) => {
             this.bookDataDone = resolve;
-        } );
-    }
-
-    public getTick(): Promise<TickData> {
-        return new Promise<TickData>( ( resolve, reject ) => {
-            this.tickDataDone = resolve;
         } );
     }
 

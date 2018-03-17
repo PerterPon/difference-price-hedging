@@ -8,17 +8,10 @@ import { EventEmitter } from 'events';
 
 import { BookData } from 'exchange-types';
 
-export type TickData = {
-  high: number;
-  open: number;
-  low: number;
-  close: number;
-};
-
 export interface PricerInterface {
 
   init(): Promise<void>;
   getBook(): Promise<BookData>;
-  getTick(): Promise<TickData>;
+  // getTick(): Promise<TickData>;
 
 }

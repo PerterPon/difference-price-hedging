@@ -47,13 +47,17 @@ export class Trader {
       this.log.log( `excute action: [sell], price: [${ price }], count: [${ count }]` );
       const { cash, coin } = this.balance;
 
-      if ( price * count > coin ) {
+      this.log.log( `before excute, trader: [${this.name}] balance, cash: [${cash}], coin: [${coin}]` );
+      if ( count > coin ) {
         count = coin;
       }
 
       const feed: number = price * count * this.feeds.sell;
+      this.log.log( `feeds: [${feed}], count: [${count}]` );
       const leftCash: number = cash + price * count - feed;
       const leftCoin: number = coin - count;
+
+      this.log.log( `after excute, trader: [${this.name}] balance, cash: [${leftCash}], coin: [${leftCoin}]` );
 
       this.balance = {
         cash: leftCash,

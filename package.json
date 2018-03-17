@@ -3,7 +3,8 @@
     "scripts" : {
         "dev"   : "tsc && cd build && NODE_PATH=. node index",
         "build" : "tsc",
-        "debug" : "tsc && NODE_PATH=. node ./build/index.js"
+        "debug" : "tsc && cd build && NODE_PATH=. node index",
+        "test:connection" : "tsc && cd build && NODE_PATH=. node test-connection" 
     },
     "dependencies": {
         "websocket" : "1.0.25",
@@ -13,7 +14,9 @@
         "@types/lodash" : "*",
         "@types/moment" : "*",
         "@types/websocket" : "*",
-        "binance" : "*"
+        "binance" : "*",
+        "bitfinex-api-node": "*",
+        "crypto-exchange-manager" : "*" 
     },
     "engines": {
         "node": ">=8.0.0"

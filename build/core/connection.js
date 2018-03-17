@@ -21,6 +21,7 @@ const CONNECT_FAILED_EVENT = 'connectFailed';
 const CONNECT_EVENT = 'connect';
 const MODULE_NAME = 'CONNECTION';
 const HEARTBREAT_TIMEOUT = 10 * 1000;
+const RECONNECT_TIME = 3 * 1000;
 const log = log_1.default(MODULE_NAME);
 var WSDataType;
 (function (WSDataType) {
@@ -57,12 +58,15 @@ class Connection extends events_1.EventEmitter {
     send(data) {
         this.connection.send(data);
     }
+    dealBinaryData(buffer) {
+        return null;
+    }
     onConnectFailed(error) {
         return __awaiter(this, void 0, void 0, function* () {
             log.error(error.message);
             log.error(error.stack);
             log.warn(`[${this.name}] connection failed! waiting for reconnection!`);
-            yield Util.sleep(3);
+            yield Util.sleep(RECONNECT_TIME);
             this.connect();
         });
     }
@@ -78,28 +82,38 @@ class Connection extends events_1.EventEmitter {
     onClose() {
         return __awaiter(this, void 0, void 0, function* () {
             log.log(`[${this.name}] connection closed, waiting for reconnect`);
-            yield Util.sleep(3);
+            yield Util.sleep(RECONNECT_TIME);
             this.connect();
         });
     }
     onError(error) {
         return __awaiter(this, void 0, void 0, function* () {
             log.log(`[${this.name}] connection closed, waiting for reconnect`);
-            yield Util.sleep(3);
+            yield Util.sleep(RECONNECT_TIME);
             this.connect();
         });
     }
     onMessage(data) {
+        let resData = null;
         if (WSDataType.UTF8 === data.type) {
-            // log.log( `[${ this.name}] got ws data: ${data.utf8Data}` );
+            log.log(`[${this.name}] got binary data: ${data.utf8Data}`);
+            resData = data.utf8Data;
         }
         else if (WSDataType.BINARY === data.type) {
-            log.warn(`[${this.name}] got ws binary data, ignore it!`);
+            resData = this.dealBinaryData(data.binaryData);
+            if (resData === null) {
+                log.warn(`[${this.name}] got ws binary data, ignore it!`);
+                return;
+            }
+        }
+        const serverPing = this.serverPing(resData);
+        if (void (0) != serverPing) {
+            this.send(serverPing);
             return;
         }
-        const pongData = this.pong(data.utf8Data);
+        const pongData = this.pong(resData);
         if (false === pongData) {
-            this.onData(data.utf8Data);
+            this.onData(resData);
             // this.emit( ConnectionEvents.DATA, data.utf8Data );
         }
     }
@@ -128,6 +142,9 @@ class Connection extends events_1.EventEmitter {
             return true;
         }
         return false;
+    }
+    serverPing(data) {
+        return null;
     }
 }
 exports.Connection = Connection;

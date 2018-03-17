@@ -44,7 +44,7 @@ export class Compare {
     private priceUpdate(): void {
         const { pricePool } = this;
         const action: THAction = MultiBookTh( pricePool );
-        if ( null !== action ) {
+        if ( void( 0 ) != action ) {
             for( let [ name, trader ] of action ) {
                 this.pricePool.delete( name );
             }

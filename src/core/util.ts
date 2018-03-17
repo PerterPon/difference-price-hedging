@@ -5,9 +5,9 @@
   Create: Fri Mar 09 2018 07:13:43 GMT+0800 (CST)
 */
 
-import { Second } from 'time-types';
+import { Second, Millisecond } from 'time-types';
 
-export async function sleep( time: Second ): Promise<any> {
+export async function sleep( time: Millisecond ): Promise<any> {
 
     return new Promise( ( resolve, reject ) => {
 
