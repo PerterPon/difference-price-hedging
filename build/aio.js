@@ -15,10 +15,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bian_pricer_1 = require("pricer/bian-pricer");
 const bfx_pricer_1 = require("pricer/bfx-pricer");
-const huobi_pricer_1 = require("pricer/huobi-pricer");
 const bian_trader_1 = require("trader/bian-trader");
 const bitfinex_trader_1 = require("trader/bitfinex-trader");
-const huobi_trader_1 = require("trader/huobi-trader");
 const compare_1 = require("./compare");
 const excutor_1 = require("./excutor");
 const repotor_1 = require("repotor");
@@ -26,7 +24,6 @@ const log_1 = require("core/log");
 const log = log_1.default('AIO');
 const BFX_TRADE = 'bitfinex';
 const BIAN_TRADE = 'binance';
-const HUOBI_TRADE = 'huobi';
 class AIO {
     constructor() {
         this.pricers = new Map();
@@ -63,13 +60,13 @@ class AIO {
         log.log('init trader ...');
         this.traders.set(BFX_TRADE, new bitfinex_trader_1.BitfinexTrader);
         this.traders.set(BIAN_TRADE, new bian_trader_1.BianTrader);
-        this.traders.set(HUOBI_TRADE, new huobi_trader_1.HuobiTrader);
+        // this.traders.set( HUOBI_TRADE, new HuobiTrader );
     }
     initPricer() {
         log.log('init pricer ...');
         this.bfxBook();
         this.binanceBook();
-        this.huobiBook();
+        // this.huobiBook();
     }
     bfxBook() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -113,27 +110,24 @@ class AIO {
             }
         });
     }
-    huobiBook() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const huobiPricer = new huobi_pricer_1.HuobiPricer('btcusdt');
-            this.pricers.set(HUOBI_TRADE, huobiPricer);
-            yield huobiPricer.init();
-            try {
-                while (true) {
-                    const trader = this.traders.get(HUOBI_TRADE);
-                    const data = yield huobiPricer.getBook();
-                    const usage = this.checkPriceAndCountUsage(HUOBI_TRADE, data);
-                    if (false === usage) {
-                        repotor_1.reportLatestPrice(HUOBI_TRADE, data);
-                        this.compare.update(HUOBI_TRADE, data, trader.feeds, trader.balance);
-                    }
-                }
-            }
-            catch (e) {
-                repotor_1.reportError(e);
-            }
-        });
-    }
+    // private async huobiBook(): Promise<void> {
+    //   const huobiPricer: HuobiPricer = new HuobiPricer( 'btcusdt' );
+    //   this.pricers.set( HUOBI_TRADE, huobiPricer );
+    //   await huobiPricer.init();
+    //   try {
+    //     while( true ) {
+    //       const trader: Trader = this.traders.get( HUOBI_TRADE );
+    //       const data: BookData = await huobiPricer.getBook();
+    //       const usage: boolean = this.checkPriceAndCountUsage( HUOBI_TRADE, data );
+    //       if ( false === usage ) {
+    //         reportLatestPrice( HUOBI_TRADE, data );
+    //         this.compare.update( HUOBI_TRADE, data, trader.feeds, trader.balance );
+    //       }
+    //     }
+    //   } catch( e ) {
+    //     reportError( e );
+    //   }
+    // }
     checkPriceAndCountUsage(name, data) {
         let result = false;
         if (void (0) !== this.currentAction) {

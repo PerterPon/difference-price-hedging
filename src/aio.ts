@@ -27,7 +27,7 @@ const log = Log( 'AIO' );
 
 const BFX_TRADE  = 'bitfinex';
 const BIAN_TRADE = 'binance';
-const HUOBI_TRADE = 'huobi';
+// const HUOBI_TRADE = 'huobi';
 
 type Traders = Map<TradeName, Trader>;
 type Pricers = Map<TradeName, PricerInterface>;
@@ -68,14 +68,14 @@ export class AIO {
     log.log( 'init trader ...' );
     this.traders.set( BFX_TRADE, new BitfinexTrader );
     this.traders.set( BIAN_TRADE, new BianTrader );
-    this.traders.set( HUOBI_TRADE, new HuobiTrader );
+    // this.traders.set( HUOBI_TRADE, new HuobiTrader );
   }
 
   private initPricer(): void {
     log.log( 'init pricer ...' );
     this.bfxBook();
     this.binanceBook();
-    this.huobiBook();
+    // this.huobiBook();
   }
 
   private async bfxBook(): Promise<void> {
@@ -121,27 +121,27 @@ export class AIO {
     }
   }
 
-  private async huobiBook(): Promise<void> {
-    const huobiPricer: HuobiPricer = new HuobiPricer( 'btcusdt' );
+  // private async huobiBook(): Promise<void> {
+  //   const huobiPricer: HuobiPricer = new HuobiPricer( 'btcusdt' );
 
-    this.pricers.set( HUOBI_TRADE, huobiPricer );
-    await huobiPricer.init();
+  //   this.pricers.set( HUOBI_TRADE, huobiPricer );
+  //   await huobiPricer.init();
 
-    try {
-      while( true ) {
-        const trader: Trader = this.traders.get( HUOBI_TRADE );
-        const data: BookData = await huobiPricer.getBook();
-        const usage: boolean = this.checkPriceAndCountUsage( HUOBI_TRADE, data );
-        if ( false === usage ) {
-          reportLatestPrice( HUOBI_TRADE, data );
-          this.compare.update( HUOBI_TRADE, data, trader.feeds, trader.balance );
-        }
-      }
-    } catch( e ) {
-      reportError( e );
-    }
+  //   try {
+  //     while( true ) {
+  //       const trader: Trader = this.traders.get( HUOBI_TRADE );
+  //       const data: BookData = await huobiPricer.getBook();
+  //       const usage: boolean = this.checkPriceAndCountUsage( HUOBI_TRADE, data );
+  //       if ( false === usage ) {
+  //         reportLatestPrice( HUOBI_TRADE, data );
+  //         this.compare.update( HUOBI_TRADE, data, trader.feeds, trader.balance );
+  //       }
+  //     }
+  //   } catch( e ) {
+  //     reportError( e );
+  //   }
 
-  }
+  // }
 
   private checkPriceAndCountUsage( name: TradeName, data: BookData ): boolean {
 

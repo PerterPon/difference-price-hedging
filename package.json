@@ -14,9 +14,8 @@
         "@types/lodash" : "*",
         "@types/moment" : "*",
         "@types/websocket" : "*",
-        "binance" : "*",
-        "bitfinex-api-node": "*",
-        "crypto-exchange-manager" : "*" 
+        "binance" : "1.3.3",
+        "bitfinex-api-node": "2.0.0-beta"
     },
     "engines": {
         "node": ">=8.0.0"
