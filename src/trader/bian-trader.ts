@@ -18,8 +18,8 @@ export class BianTrader extends Trader {
     };
 
     public balance: Balance = {
-        cash: 100000,
-        coin: 10
+        cash: 10000000,
+        coin: 10000
     };
 
     public name: string = 'bian';
