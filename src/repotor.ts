@@ -14,17 +14,23 @@ import Log from 'core/log';
 const log = Log( 'REPOTOR' );
 
 const priceWriter: Writer = new Writer( 'price' );
+priceWriter.updateLatest = true;
 const profitWriter: Writer = new Writer( 'profit' );
 profitWriter.updateLatest = true;
 
 const feedsWriter: Writer = new Writer( 'feed' );
 const totalWriter: Writer = new Writer( 'total' );
 const actionWriter: Writer = new Writer( 'action' );
+const nonLeftWriter: Writer = new Writer( 'noneleft' );
+
+const errorWriter: Writer = new Writer( 'error' );
 
 export function reportTotal( traders:Map<TradeName, Trader> ): void {
 
     let totalCash: number = 0;
     let totalCoin: number = 0;
+
+    let traderDetail: string = '';
 
     for( let [ name, trader ] of traders ) {
 
@@ -33,6 +39,7 @@ export function reportTotal( traders:Map<TradeName, Trader> ): void {
 
         totalCash += cash;
         totalCoin += coin;
+        traderDetail += `[${name}], cash: [${cash}], coin: [${coin}]`;
 
     }   
 
@@ -45,6 +52,9 @@ export function reportTotal( traders:Map<TradeName, Trader> ): void {
     const content: string = log.assemblyLog( 'total', totalContent );
     totalWriter.updateContent( content );
 
+    const detailContent: string = log.assemblyLog( 'detail', traderDetail );
+    totalWriter.updateContent( detailContent );
+
 }
 
 export function reportError( e: Error ): void {
@@ -53,6 +63,8 @@ export function reportError( e: Error ): void {
     log.error( message );
     log.error( stack );
     log.error( '================================' );
+    const errorContent: string = log.assemblyLog( 'error', `${stack}\n${message}` );
+    errorWriter.updateContent( errorContent );
 }
 
 export function reportNoneLeft( aTradeName: TradeName, aBalance: Balance, bTradeName: TradeName, bBalance: Balance ): void {
@@ -62,13 +74,22 @@ export function reportNoneLeft( aTradeName: TradeName, aBalance: Balance, bTrade
     log.warn( '====================================' );
 }
 
+const lastestPriceMap = {};
 export function reportLatestPrice( name: TradeName, data: BookData ): void {
+    lastestPriceMap[ name ] = data;
+    let content: string = '\n';
+
+    for( let traderName in lastestPriceMap ) {
+        const traderData: BookData = lastestPriceMap[ traderName ];
+        content += `name: [${ traderName }] bookData: [${ JSON.stringify( traderData ) }]\n`;
+    }
+    content += '------------------------------------';
     // const content: string = `name: [${ name }] bookData: [${ JSON.stringify( data )}]`;
     // log.log( '========== lastest price ============' );
     // log.log( `|| name: [${name}] bookData: [${JSON.stringify( data )}]` );
     // log.log( '=====================================' );
-    // const priceContent: string = log.assemblyLog( 'price', content );
-    // priceWriter.updateContent( priceContent );
+    const priceContent: string = log.assemblyLog( 'price', content );
+    priceWriter.updateContent( priceContent );
 }
 
 export function reportAction( actions: THAction ): void {

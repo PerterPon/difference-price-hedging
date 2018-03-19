@@ -21,3 +21,8 @@ function start() {
     });
 }
 start();
+process.on('uncaughtException', function (e) {
+    console.log('========== uncaughtException =========');
+    console.log(e.message);
+    console.log(e.stack);
+});
