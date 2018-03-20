@@ -4,7 +4,10 @@
         "dev"   : "tsc && cd build && NODE_PATH=. node index",
         "build" : "tsc",
         "debug" : "tsc && cd build && NODE_PATH=. node index",
-        "test:connection" : "tsc && cd build && NODE_PATH=. node test-connection" 
+        "test:connection" : "tsc && cd build && NODE_PATH=. node test-connection",
+        "eth"   : "tsc && cd build && NODE_PATH=. node index eth",
+        "ltc"   : "tsc && cd build && NODE_PATH=. node index ltc",
+        "btc"   : "tsc && cd build && NODE_PATH=. node index btc"
     },
     "dependencies": {
         "websocket" : "1.0.25",

@@ -17,17 +17,19 @@ import { HuobiTrader } from 'trader/huobi-trader';
 
 import { Compare } from './compare';
 import { excute } from './excutor';
-import { reportTotal, reportError, reportLatestPrice } from 'repotor';
+import { init as InitRepotor, reportTotal, reportError, reportLatestPrice } from 'repotor';
+
+import Log from 'core/log';
+import { Writer } from 'core/writer';
 
 import { THAction, TradeAction, TradeName } from 'trade-types';
-import Log from 'core/log';
 import { BookData } from 'exchange-types';
 
 const log = Log( 'AIO' );
 
 const BFX_TRADE  = 'bitfinex';
 const BIAN_TRADE = 'binance';
-// const HUOBI_TRADE = 'huobi';
+const HUOBI_TRADE = 'huobi';
 
 type Traders = Map<TradeName, Trader>;
 type Pricers = Map<TradeName, PricerInterface>;
@@ -38,9 +40,16 @@ export class AIO {
   private pricers: Pricers = new Map();
   private traders: Traders = new Map();
 
+  private symbol: string;
+
   private currentAction: THAction;
 
-  public async start():Promise<void>{
+  public async start( symbol: string ):Promise<void>{
+    this.symbol = symbol;
+    Writer.symbol = symbol;
+
+    InitRepotor();
+
     this.initTrader();
     this.initCompare();
     this.initPricer();    
@@ -80,7 +89,9 @@ export class AIO {
 
   private async bfxBook(): Promise<void> {
 
-    const pricer: BFXPricer = new BFXPricer( 'tBTCUSD' );
+    const { symbol } = this;
+
+    const pricer: BFXPricer = new BFXPricer( `t${ symbol.toUpperCase() }USD` );
 
     this.pricers.set( BFX_TRADE, pricer );
     await pricer.init();
@@ -101,7 +112,8 @@ export class AIO {
   }
 
   private async binanceBook(): Promise<void> {
-    const bianPricer: BianPricer = new BianPricer( 'BTCUSDT' );
+    const { symbol } = this;
+    const bianPricer: BianPricer = new BianPricer( `${ symbol.toUpperCase() }USDT` );
 
     this.pricers.set( BIAN_TRADE, bianPricer );
     await bianPricer.init();
@@ -121,27 +133,28 @@ export class AIO {
     }
   }
 
-  // private async huobiBook(): Promise<void> {
-  //   const huobiPricer: HuobiPricer = new HuobiPricer( 'btcusdt' );
+  private async huobiBook(): Promise<void> {
+    const { symbol } = this;
+    const huobiPricer: HuobiPricer = new HuobiPricer( `${ symbol }usdt` );
 
-  //   this.pricers.set( HUOBI_TRADE, huobiPricer );
-  //   await huobiPricer.init();
+    this.pricers.set( HUOBI_TRADE, huobiPricer );
+    await huobiPricer.init();
 
-  //   try {
-  //     while( true ) {
-  //       const trader: Trader = this.traders.get( HUOBI_TRADE );
-  //       const data: BookData = await huobiPricer.getBook();
-  //       const usage: boolean = this.checkPriceAndCountUsage( HUOBI_TRADE, data );
-  //       if ( false === usage ) {
-  //         reportLatestPrice( HUOBI_TRADE, data );
-  //         this.compare.update( HUOBI_TRADE, data, trader.feeds, trader.balance );
-  //       }
-  //     }
-  //   } catch( e ) {
-  //     reportError( e );
-  //   }
+    try {
+      while( true ) {
+        const trader: Trader = this.traders.get( HUOBI_TRADE );
+        const data: BookData = await huobiPricer.getBook();
+        const usage: boolean = this.checkPriceAndCountUsage( HUOBI_TRADE, data );
+        if ( false === usage ) {
+          reportLatestPrice( HUOBI_TRADE, data );
+          this.compare.update( HUOBI_TRADE, data, trader.feeds, trader.balance );
+        }
+      }
+    } catch( e ) {
+      reportError( e );
+    }
 
-  // }
+  }
 
   private checkPriceAndCountUsage( name: TradeName, data: BookData ): boolean {
 

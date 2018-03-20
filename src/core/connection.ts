@@ -130,7 +130,7 @@ export class Connection extends EventEmitter {
 
     protected ping(): void {
 
-        log.log( 'ping' );
+        // log.log( 'ping' );
         const pingContent: string = this.pingData();
         this.send( pingContent );
 
@@ -150,7 +150,7 @@ export class Connection extends EventEmitter {
     protected pong( data: string ): boolean {
         if ( true === this.pongData( data ) ) {
             clearTimeout( this.pingTimeout );
-            log.log( 'pong' );
+            // log.log( 'pong' );
             setTimeout( this.ping.bind( this ), HEARTBREAT_TIMEOUT );
             return true;
         }

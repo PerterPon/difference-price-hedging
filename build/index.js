@@ -15,9 +15,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const aio_1 = require("./aio");
 const aio = new aio_1.AIO();
+const [processName, targetName, symbol] = process.argv;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield aio.start();
+        yield aio.start(symbol);
     });
 }
 start();

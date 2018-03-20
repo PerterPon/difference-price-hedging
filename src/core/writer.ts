@@ -19,6 +19,8 @@ const appendFile = NodeUtil.promisify( fs.appendFile );
 
 export class Writer {
 
+    public static symbol: string;
+
     private pool: string = '';
     private name: string;
     private targetFile: string;
@@ -27,18 +29,27 @@ export class Writer {
 
     constructor( name: string ) {
         this.name = name;
-        this.targetFile = path.join( __dirname, '../log', `${ name }.log` );
+        const logFolder: string = path.join( __dirname, `../${ Writer.symbol }-log` );
+        this.targetFile = path.join( logFolder, `${ name }.log` );
+        this.initLogFolder( logFolder );
         this.initFile();
         this.start();
     }
 
+    private initLogFolder( folder: string ): void {
+        const exists: boolean = fs.existsSync( folder );
+        if ( false === exists ) {
+            log.log( `initing log foler: [${ this.targetFile }]` );
+            fs.mkdirSync( folder );
+        }
+    }
+
     private initFile(): void {
-        fs.exists( this.targetFile, ( exists ) => {
-            if ( false === exists ) {
-                log.log( `initing log file: [${this.name}]` );
-                fs.writeFile( this.targetFile, `// ${this.name}`, () => {} );
-            }
-        } );
+        const exists: boolean = fs.existsSync( this.targetFile );
+        if ( false === exists ) {
+            log.log( `initing log file: [${ this.name }] at ` );
+            fs.writeFile( this.targetFile, `// ${ this.name }`, () => { } );
+        }
     }
 
     private async start(): Promise<void> {

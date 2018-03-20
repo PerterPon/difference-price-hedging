@@ -9,8 +9,10 @@ import { AIO } from './aio';
 
 const aio = new AIO();
 
+const [ processName, targetName, symbol ] = process.argv;
+
 async function start(): Promise<void> {
-  await aio.start();
+  await aio.start( symbol );
 }
 
 start();

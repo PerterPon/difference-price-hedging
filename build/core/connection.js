@@ -123,7 +123,7 @@ class Connection extends events_1.EventEmitter {
         return '';
     }
     ping() {
-        log.log('ping');
+        // log.log( 'ping' );
         const pingContent = this.pingData();
         this.send(pingContent);
         this.pingTimeout = setTimeout(() => {
@@ -137,7 +137,7 @@ class Connection extends events_1.EventEmitter {
     pong(data) {
         if (true === this.pongData(data)) {
             clearTimeout(this.pingTimeout);
-            log.log('pong');
+            // log.log( 'pong' );
             setTimeout(this.ping.bind(this), HEARTBREAT_TIMEOUT);
             return true;
         }

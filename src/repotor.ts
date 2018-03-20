@@ -13,17 +13,28 @@ import { Writer } from 'core/writer';
 import Log from 'core/log';
 const log = Log( 'REPOTOR' );
 
-const priceWriter: Writer = new Writer( 'price' );
-priceWriter.updateLatest = true;
-const profitWriter: Writer = new Writer( 'profit' );
-profitWriter.updateLatest = true;
+let priceWriter: Writer;
+let profitWriter: Writer;
+let feedsWriter: Writer;
+let totalWriter: Writer;
+let actionWriter: Writer;
+let nonLeftWriter: Writer;
 
-const feedsWriter: Writer = new Writer( 'feed' );
-const totalWriter: Writer = new Writer( 'total' );
-const actionWriter: Writer = new Writer( 'action' );
-const nonLeftWriter: Writer = new Writer( 'noneleft' );
+let errorWriter: Writer;
 
-const errorWriter: Writer = new Writer( 'error' );
+export function init() {
+    priceWriter = new Writer( 'price' );
+    priceWriter.updateLatest = true;
+    profitWriter = new Writer( 'profit' );
+    profitWriter.updateLatest = true;
+
+    feedsWriter = new Writer( 'feed' );
+    totalWriter = new Writer( 'total' );
+    actionWriter = new Writer( 'action' );
+    nonLeftWriter = new Writer( 'noneleft' );
+
+    errorWriter = new Writer( 'error' );
+}
 
 export function reportTotal( traders:Map<TradeName, Trader> ): void {
 
@@ -39,9 +50,9 @@ export function reportTotal( traders:Map<TradeName, Trader> ): void {
 
         totalCash += cash;
         totalCoin += coin;
-        traderDetail += `[${name}], cash: [${cash}], coin: [${coin}]`;
+        traderDetail += `[${name}], cash: [${cash}], coin: [${coin}]\n`;
 
-    }   
+    }
 
     const totalContent: string = `cash: [${ totalCash }], coin: [${ totalCoin }]`;
 
@@ -52,7 +63,7 @@ export function reportTotal( traders:Map<TradeName, Trader> ): void {
     const content: string = log.assemblyLog( 'total', totalContent );
     totalWriter.updateContent( content );
 
-    const detailContent: string = log.assemblyLog( 'detail', traderDetail );
+    const detailContent: string = log.assemblyLog( 'detail', `\n${traderDetail}` );
     totalWriter.updateContent( detailContent );
 
 }

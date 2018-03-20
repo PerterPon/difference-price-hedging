@@ -80,7 +80,9 @@ function getBestBidAndAskTrade( data: Map<TradeName, Exchange> ): { ask: TradeNa
 
     for ( let [ name, exchange ] of data ) {
         const { book, feeds, balance } = exchange;
-        const { askPrice, bidPrice } = book;
+        let { askPrice, bidPrice } = book;
+        askPrice = askPrice * ( 1 + feeds.buy );
+        bidPrice = askPrice * ( 1 - feeds.sell );
         asks.set( askPrice, name );
         bids.set( bidPrice, name );
     }
