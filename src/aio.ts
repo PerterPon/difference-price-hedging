@@ -8,7 +8,7 @@
 import { PricerInterface } from 'pricer/pricer';
 import { BianPricer } from 'pricer/bian-pricer';
 import { BFXPricer } from 'pricer/bfx-pricer';
-import {} from 'pricer/bitfinex-pricer';
+import { BitfinexPricer } from 'pricer/bitfinex-pricer';
 import { HuobiPricer } from 'pricer/huobi-pricer';
 
 import { Trader } from 'trader/trader';
@@ -83,9 +83,34 @@ export class AIO {
 
   private initPricer(): void {
     log.log( 'init pricer ...' );
-    this.bfxBook();
+    // this.bfxBook();
+    this.bitfinexBook();
     this.binanceBook();
     this.huobiBook();
+  }
+
+  private async bitfinexBook(): Promise<void> {
+
+    const { symbol } = this;
+    const pricer: BitfinexPricer = new BitfinexPricer( `t${ symbol.toUpperCase() }USD` );
+
+    this.pricers.set( BFX_TRADE, pricer );
+    await pricer.init();
+
+    while( true ) {
+      try {
+        const bookData: BookData = await pricer.getBook();
+        const trader: Trader = await this.traders.get( BFX_TRADE );
+        const useage: boolean = this.checkPriceAndCountUsage( BFX_TRADE, bookData );
+        if ( false === useage ) {
+          reportLatestPrice( BFX_TRADE, bookData );
+          this.compare.update( BFX_TRADE, bookData, trader.feeds, trader.balance );
+        }
+      } catch( e ) {  
+        reportError( e );
+      }
+    } 
+
   }
 
   private async bfxBook(): Promise<void> {
