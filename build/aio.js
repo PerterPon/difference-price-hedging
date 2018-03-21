@@ -18,6 +18,7 @@ const bfx_pricer_1 = require("pricer/bfx-pricer");
 const huobi_pricer_1 = require("pricer/huobi-pricer");
 const bian_trader_1 = require("trader/bian-trader");
 const bitfinex_trader_1 = require("trader/bitfinex-trader");
+const huobi_trader_1 = require("trader/huobi-trader");
 const compare_1 = require("./compare");
 const excutor_1 = require("./excutor");
 const repotor_1 = require("repotor");
@@ -66,13 +67,13 @@ class AIO {
         log.log('init trader ...');
         this.traders.set(BFX_TRADE, new bitfinex_trader_1.BitfinexTrader);
         this.traders.set(BIAN_TRADE, new bian_trader_1.BianTrader);
-        // this.traders.set( HUOBI_TRADE, new HuobiTrader );
+        this.traders.set(HUOBI_TRADE, new huobi_trader_1.HuobiTrader);
     }
     initPricer() {
         log.log('init pricer ...');
         this.bfxBook();
         this.binanceBook();
-        // this.huobiBook();
+        this.huobiBook();
     }
     bfxBook() {
         return __awaiter(this, void 0, void 0, function* () {

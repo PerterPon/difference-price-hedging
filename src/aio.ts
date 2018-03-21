@@ -8,6 +8,7 @@
 import { PricerInterface } from 'pricer/pricer';
 import { BianPricer } from 'pricer/bian-pricer';
 import { BFXPricer } from 'pricer/bfx-pricer';
+import {} from 'pricer/bitfinex-pricer';
 import { HuobiPricer } from 'pricer/huobi-pricer';
 
 import { Trader } from 'trader/trader';
@@ -77,14 +78,14 @@ export class AIO {
     log.log( 'init trader ...' );
     this.traders.set( BFX_TRADE, new BitfinexTrader );
     this.traders.set( BIAN_TRADE, new BianTrader );
-    // this.traders.set( HUOBI_TRADE, new HuobiTrader );
+    this.traders.set( HUOBI_TRADE, new HuobiTrader );
   }
 
   private initPricer(): void {
     log.log( 'init pricer ...' );
     this.bfxBook();
     this.binanceBook();
-    // this.huobiBook();
+    this.huobiBook();
   }
 
   private async bfxBook(): Promise<void> {

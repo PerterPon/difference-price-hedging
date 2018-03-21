@@ -9,17 +9,6 @@ import * as _ from 'lodash';
 import { BitfinexConnection, ChannelId } from 'connections/bitfinex-connection';
 import { ConnectionEvents } from 'core/enums/connection';
 import { BookData } from 'exchange-types';
-import * as BFX from 'bitfinex-api-node';
-
-const bfx = new BFX( {
-    apiKey: 'xx',
-    apiSecret: 'xxx',
-    ws : {
-        autoReconnect: true,
-        seqAudit : true,
-        packetWDDelay: 10 * 1000
-    }
-} );
 
 type BookUpdateData = [
     ChannelId,
@@ -117,7 +106,6 @@ export class BitfinexPricer implements PricerInterface {
                 close: lastPrice
             } );
         }
-
     }
 
     public getBook(): Promise<BookData> {
