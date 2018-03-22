@@ -9,6 +9,7 @@ import { client, connection, IMessage } from 'websocket';
 import Log from 'core/log';
 import * as Util from 'core/util';
 import { EventEmitter } from 'events';
+import { reportError } from 'repotor';
 
 const CONNECT_FAILED_EVENT: string = 'connectFailed';
 const CONNECT_EVENT: string = 'connect';
@@ -69,6 +70,7 @@ export class Connection extends EventEmitter {
         log.error( error.message );
         log.error( error.stack );
         log.warn( `[${ this.name}] connection failed! waiting for reconnection!` );
+        reportError( error );
         await Util.sleep( RECONNECT_TIME );
         this.connect();
     }
@@ -98,7 +100,6 @@ export class Connection extends EventEmitter {
     private onMessage( data: IMessage ): void {
         let resData: string = null;
         if ( WSDataType.UTF8 === data.type ) {
-            log.log( `[${ this.name }] got binary data: ${data.utf8Data}` );
             resData = data.utf8Data;
         } else if ( WSDataType.BINARY === data.type ) {            
             resData = this.dealBinaryData( data.binaryData );
