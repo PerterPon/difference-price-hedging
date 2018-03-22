@@ -16,8 +16,8 @@ export class HuobiTrader extends Trader {
     };
 
     public balance: Balance = {
-        cash: 100000,
-        coin: 10
+        cash: 10000000,
+        coin: 100000
     };
 
     public name: string = 'huobi';
