@@ -83,8 +83,8 @@ export class AIO {
 
   private initPricer(): void {
     log.log( 'init pricer ...' );
-    // this.bfxBook();
-    this.bitfinexBook();
+    this.bfxBook();
+    // this.bitfinexBook();
     this.binanceBook();
     this.huobiBook();
   }
