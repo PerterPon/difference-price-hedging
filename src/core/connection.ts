@@ -87,8 +87,8 @@ export class Connection extends EventEmitter {
 
     private async onClose(): Promise<void> {
         log.log( `[${ this.name}] connection closed, waiting for reconnect` );
-        await Util.sleep( RECONNECT_TIME );
-        this.connect();
+        // await Util.sleep( RECONNECT_TIME );
+        // this.connect();
     }
 
     private async onError( error: Error ): Promise<void> {
