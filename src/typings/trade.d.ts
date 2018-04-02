@@ -25,6 +25,8 @@ declare module "trade-types" {
         count: number;
     };
 
+    export type TradeId = number;
+
     export type THAction = Map<TradeName, TradeAction>;
 
 }

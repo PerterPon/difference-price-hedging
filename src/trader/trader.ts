@@ -6,7 +6,7 @@
 */
 
 import { Store } from 'core/store';
-import { Feeds, Balance } from 'trade-types';
+import { Feeds, Balance, TradeId } from 'trade-types';
 import Log from 'core/log';
 
 export class Trader {
@@ -18,7 +18,32 @@ export class Trader {
 
     protected log;
 
-    public async buy( price: number, count: number ): Promise<void> {
+    private currentBuyId: TradeId;
+    private currentSellId: TradeId;
+
+    protected async beforeBuy(): Promise<void> {
+
+    }
+
+    public async buy( price: number, count: number ): Promise<TradeId> {
+
+      const tradeId: TradeId = Math.random();
+
+
+
+      return tradeId;
+
+    }
+
+    protected async afterBuy(): Promise<void> {
+
+    }
+
+    protected async doBuy(): Promise<void> {
+
+    }
+
+    public async buy1( price: number, count: number ): Promise<void> {
 
       this.log.log( `excute action: [buy], price: [${price}], count: [${count}]` );
       const { cash, coin } = this.balance;
@@ -71,5 +96,7 @@ export class Trader {
       this.log.log( `[${ this.name }] total data, coin: [${ leftCoin }], cash: [${ leftCash }]` );
 
     }
+
+    public calcelBuy
 
 }

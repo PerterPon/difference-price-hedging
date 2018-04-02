@@ -17,11 +17,12 @@ import { BitfinexTrader } from 'trader/bitfinex-trader';
 import { HuobiTrader } from 'trader/huobi-trader';
 
 import { Compare } from './compare';
-import { excute } from './excutor';
+import { Excutor } from './excutor';
 import { init as InitRepotor, reportTotal, reportError, reportLatestPrice } from 'repotor';
 
 import Log from 'core/log';
 import { Writer } from 'core/writer';
+import { Db } from 'core/db';
 
 import { THAction, TradeAction, TradeName } from 'trade-types';
 import { BookData } from 'exchange-types';
@@ -51,9 +52,16 @@ export class AIO {
 
     InitRepotor();
 
+    this.initCore();
+
     this.initTrader();
     this.initCompare();
     this.initPricer();    
+  }
+
+  private initCore(): void {
+    const db: Db = Db.getInstance();
+    db.init();
   }
 
   private async initCompare(): Promise<void> {
@@ -65,7 +73,8 @@ export class AIO {
         // 获得操作action
         const action: THAction = await this.compare.getAction();
         // 执行操作
-        excute( action, traders );
+        const excutor: Excutor = Excutor.getInstance();
+        excutor.excute( action, traders );
         // 汇报
         reportTotal( traders );
       } catch( e ) {
