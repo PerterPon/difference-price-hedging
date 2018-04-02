@@ -22,3 +22,8 @@ process.on( 'uncaughtException', function( e ) {
   console.log( e.message );
   console.log( e.stack );
 } );
+
+process.on( 'exit', function( code ) {
+  console.log( '========== exit =============' );
+  console.log( `exit code: [${code}]` );
+} );
