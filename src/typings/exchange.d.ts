@@ -21,4 +21,16 @@ declare module "exchange-types" {
         balance: Balance;
     };
 
+    export type TOrderBookItem = {
+        price: number;
+        amount: number;
+    };
+
+    export type TOrderBookContent = Array<TOrderBookItem>;
+
+    export type TOrderBook = {
+        bid: TOrderBookContent;
+        ask: TOrderBookContent;
+    };
+
 }

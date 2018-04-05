@@ -8,13 +8,16 @@ import { IPricer } from './pricer';
 import * as _ from 'lodash';
 import * as Binance from 'binance/lib/binance';
 
-import { BookData } from 'exchange-types';
 import { Coin } from 'core/enums/util';
+import { OrderBoook } from 'order-books/order-book';
+
+import { BookData, TOrderBook, TOrderBookContent, TOrderBookItem } from 'exchange-types';
 
 export class BianPricer implements IPricer {
 
     private binance;
     private symbol: string;
+    private orderBook: OrderBoook = new OrderBoook();
 
     constructor() {
         const coin: Coin = global.symbol;
@@ -32,32 +35,47 @@ export class BianPricer implements IPricer {
 
     private onBookData( data ): void {
         const { bidDepthDelta, askDepthDelta } = data;
+        const orderBook: OrderBoook = this.orderBook;
 
         const { currentBookData } = this;
+        let firstBidUpdate: boolean = false;
+        for( let i = 0; i < bidDepthDelta.length; i ++ ) {
+            const bid = bidDepthDelta[ i ];
+            const { price, quantity } = bid;
 
-        const bidFirst = bidDepthDelta[ 0 ];
-        const askFirst = askDepthDelta[ 0 ];
-        if ( bidFirst ) {
-            const { price, quantity } = bidFirst;
-            currentBookData.bidPrice = +price;
-            if ( 0 === +quantity ) {
-                return;
-            }
-            currentBookData.bidCount = +quantity;
+            const res: boolean = orderBook.updateBid( +price, +quantity );
+            firstBidUpdate = firstBidUpdate || res;
         }
 
-        if ( askFirst ) {
-            const { price, quantity } = askFirst;
-            currentBookData.askPrice = +price;
-            if ( 0 === +quantity ) {
-                return;
-            }
-            currentBookData.askCount = +quantity;
+        if ( true === firstBidUpdate ) {
+            const orderBookData: TOrderBook = orderBook.orderBook;
+            const bidContent: TOrderBookContent = orderBookData.bid;
+            const bidItem: TOrderBookItem = bidContent[ 0 ] || {} as TOrderBookItem;
+            currentBookData.bidPrice = bidItem.price  || 0;
+            currentBookData.bidCount = bidItem.amount || 0;
         }
 
-        if( true === _.isFunction( this.bookDataDone ) ) {
+        let firstAskUpdate: boolean = false;
+        for ( let i = 0; i < askDepthDelta.length; i++ ) {
+            const bid = askDepthDelta[ i ];
+            const { price, quantity } = bid;
+
+            const res: boolean = orderBook.updateAsk( +price, +quantity );
+            firstAskUpdate = firstAskUpdate || res;
+        }
+
+        if ( true === firstAskUpdate ) {
+            const orderBookData: TOrderBook = orderBook.orderBook;
+            const askContent: TOrderBookContent = orderBookData.ask;
+            const askItem: TOrderBookItem = askContent[ 0 ] || {} as TOrderBookItem;
+            currentBookData.askPrice = askItem.price  || 0;
+            currentBookData.askCount = askItem.amount || 0;
+        }
+
+        if ( currentBookData.askPrice && currentBookData.bidPrice && true === _.isFunction( this.bookDataDone ) ) {
             this.bookDataDone( currentBookData );
         }
+
     }
 
     public async getBook(): Promise<BookData> {

@@ -8,8 +8,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "启动程序",
+            "name": "debugger",
             "program": "${workspaceFolder}/build/index.js",
+            "args": [
+                "btc"
+            ],
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],

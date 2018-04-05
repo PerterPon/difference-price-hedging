@@ -8,15 +8,19 @@
 
 import { HuobiConnection } from 'connections/huobi-connection';
 import { IPricer } from './pricer';
-import { BookData } from 'exchange-types';
 
+import { OrderBoook } from 'order-books/order-book';
 import { ConnectionEvents } from 'core/enums/connection'
 import { Coin } from 'core/enums/util';
+
+import { BookData, TOrderBook, TOrderBookContent, TOrderBookItem } from 'exchange-types';
 
 export class HuobiPricer implements IPricer {
     
     private connection: HuobiConnection;
     private symbol: string;
+
+    private orderBook: OrderBoook;
 
     private bookDataDone:( data: BookData )=>void;
 
