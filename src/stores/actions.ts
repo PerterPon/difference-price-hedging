@@ -33,7 +33,7 @@ export async function addAction( accountName: string, action: ActionType, price:
     )
     `;
 
-    const where: Array<any> = [ accountName, action, price, count, done, coin ];
+    const where: Array<any> = [ accountName, action, price, count, done, coin, thBuffer ];
     const data = await db.query( sql, where );
     return data.insertId;
 

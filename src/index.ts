@@ -7,7 +7,6 @@
 
 import { AIO } from './aio';
 import { Coin } from 'core/enums/util';
-import './global';
 
 declare global {
   namespace NodeJS {

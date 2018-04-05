@@ -28,7 +28,7 @@ export async function addFeeds( accountName: string, action: ActionType, feed: n
         ?
     );
     `;
-    const where: Array<any> = [ accountName, action, feed, coin ];
+    const where: Array<any> = [ accountName, action, feed, coin, actionId ];
     const data = await db.query( sql, where );
     return data.insertId;
 
