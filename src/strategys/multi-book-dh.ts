@@ -121,7 +121,7 @@ function calProfit( bidPrice: number, askPrice: number, bidFeed: number, askFeed
 
     const totalFeeds = ( bidPrice * bidFeed ) + ( askPrice * askFeed );
     const dis = bidPrice - askPrice;
-    const TH_BUFFER: number = ( global as any ).thBuffer;
+    const TH_BUFFER: number = global.thBuffer;
     const profit: number = dis - totalFeeds * ( 1 + TH_BUFFER );
     reportLatestProfit( dis, totalFeeds, profit );
 

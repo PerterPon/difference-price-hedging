@@ -23,7 +23,7 @@ export class HuobiPricer implements IPricer {
     private currentPrice: BookData = {} as BookData;
 
     constructor() {
-        const coin: Coin = ( global as any ).symbol;
+        const coin: Coin = global.symbol;
         this.symbol = `${ coin.toLowerCase() }usdt`;
         this.connection = new HuobiConnection( this.symbol );
     }

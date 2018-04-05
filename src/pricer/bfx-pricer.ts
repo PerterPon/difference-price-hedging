@@ -23,7 +23,7 @@ export class BFXPricer implements IPricer {
     private currentSymbol: string;
 
     constructor () {
-        const coin: Coin = ( global as any ).symbol;
+        const coin: Coin = global.symbol;
         this.currentSymbol = `t${coin.toUpperCase()}USD`;
     }
 

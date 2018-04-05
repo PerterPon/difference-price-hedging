@@ -57,7 +57,7 @@ export class BitfinexPricer implements IPricer {
     private currentBookData: BookData = {} as BookData;
 
     constructor() {
-        const coin: Coin = ( global as any ).symbol;
+        const coin: Coin = global.symbol;
         this.connection = new BitfinexConnection( `t${coin.toUpperCase()}USD` );
     }
 

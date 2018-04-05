@@ -30,7 +30,7 @@ export class Writer {
 
     constructor( name: string ) {
         this.name = name;
-        const coin: Coin = ( global as any ).symbol;
+        const coin: Coin = global.symbol;
         Writer.symbol = coin;
         const logFolder: string = path.join( __dirname, `../${ Writer.symbol }-log` );
         this.targetFile = path.join( logFolder, `${ name }.log` );

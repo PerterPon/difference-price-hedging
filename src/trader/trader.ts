@@ -53,8 +53,8 @@ export class Trader {
 
     public async buy( price: number, count: number ): Promise<TradeId> {
 
-      const coin: Coin = ( global as any ).symbol;
-      const thBuffer: number = ( global as any ).thBuffer;
+      const coin: Coin = global.symbol;
+      const thBuffer: number = global.thBuffer;
       const actionId: number = await ActionStore.addAction( this.name, ActionType.BUY, price, count, 0, coin, thBuffer );
 
       await this.beforeBuy();
@@ -69,7 +69,7 @@ export class Trader {
       const { buy } = this.feeds;
       const feed: number = price * count * actionId;
       const { balance } = this;
-      const coin: Coin = ( global as any ).symbol;
+      const coin: Coin = global.symbol;
 
       await ActionStore.updateAction( actionId, 1 );
       await AccountStore.addAcounts( this.name, balance.cash, balance.coin, coin );
@@ -102,8 +102,8 @@ export class Trader {
 
     public async sell( price: number, count: number ): Promise<void> {
 
-      const coin: Coin = ( global as any ).symbol;
-      const thBuffer: number = ( global as any ).thBuffer;
+      const coin: Coin = global.symbol;
+      const thBuffer: number = global.thBuffer;
       const actionId: number = await ActionStore.addAction( this.name, ActionType.SELL, price, count, 0, coin, thBuffer );
 
       await this.beforeSell( price, count );
@@ -113,7 +113,7 @@ export class Trader {
     }
 
     protected async beforeSell( price: number, count: number ): Promise<void> {
-
+      
     }
 
     protected async afterSell( actionId: number, price: number, count: number ): Promise<void> {
@@ -121,7 +121,7 @@ export class Trader {
       const { sell } = this.feeds;
       const feed: number = price * count * sell;  
 
-      const coin: Coin = ( global as any ).symbol;
+      const coin: Coin = global.symbol;
       const { balance } = this;
       await FeedStore.addFeeds( this.name, ActionType.SELL, feed, coin, actionId );
       await AccountStore.addAcounts( this.name, balance.cash, balance.coin, coin );

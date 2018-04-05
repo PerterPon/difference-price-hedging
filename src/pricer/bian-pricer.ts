@@ -17,7 +17,7 @@ export class BianPricer implements IPricer {
     private symbol: string;
 
     constructor() {
-        const coin: Coin = ( global as any ).symbol;
+        const coin: Coin = global.symbol;
         this.symbol = `${ coin.toUpperCase() }USDT`;
     }
 
