@@ -15,11 +15,6 @@ export class HuobiTrader extends Trader {
         sell: 0.002
     };
 
-    public balance: Balance = {
-        cash: 10000000,
-        coin: 100000
-    };
-
     public name: string = 'huobi';
     protected log = Log( 'huobi' );
 

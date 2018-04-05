@@ -4,13 +4,14 @@
   Create: Sat Mar 10 2018 08:01:44 GMT+0800 (CST)
 */
 
-import { PricerInterface } from './pricer';
+import { IPricer } from './pricer';
 import * as _ from 'lodash';
 import { BookData } from 'exchange-types';
 import * as BFX from 'bitfinex-api-node';
 import { reportError } from 'repotor';
+import { Coin } from 'core/enums/util';
 
-export class BFXPricer implements PricerInterface {
+export class BFXPricer implements IPricer {
 
     private tickerChannelId: string;
 
@@ -21,8 +22,9 @@ export class BFXPricer implements PricerInterface {
     private currentBookData: BookData = {} as BookData;
     private currentSymbol: string;
 
-    constructor ( symbol: string ) {
-        this.currentSymbol = symbol;
+    constructor () {
+        const coin: Coin = ( global as any ).symbol;
+        this.currentSymbol = `t${coin.toUpperCase()}USD`;
     }
 
     public async init(): Promise<void> {

@@ -8,7 +8,7 @@ import { EventEmitter } from 'events';
 
 import { BookData } from 'exchange-types';
 
-export interface PricerInterface {
+export interface IPricer {
 
   init(): Promise<void>;
   getBook(): Promise<BookData>;

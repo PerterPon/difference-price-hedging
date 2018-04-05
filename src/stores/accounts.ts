@@ -6,7 +6,9 @@
 
 import { Db } from 'core/db';
 
-import { Account, Coin } from 'recoders-types';
+import { Account } from 'recoders-types';
+
+import { Coin } from 'core/enums/util';
 
 const db: Db = Db.getInstance();
 

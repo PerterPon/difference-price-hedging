@@ -17,12 +17,7 @@ export class BianTrader extends Trader {
         sell: 0.001
     };
 
-    public balance: Balance = {
-        cash: 10000000,
-        coin: 100000
-    };
-
-    public name: string = 'bian';
+    public name: string = 'binance';
 
     protected log = Log( 'bian' );
 

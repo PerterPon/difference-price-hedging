@@ -41,10 +41,10 @@ export class Db {
     public init(): void {
         const confContent: string = fs.readFileSync( mysqlConfPath );
         const conf = JSON.parse( confContent );
-        this.db = DB( conf );
+        this.db = new DB( conf );
         this.db.init( conf, console );
-        this.db.query = util.thunkify( this.db.query.bind( this.db ) );
-        this.db.transactionQuery = util.thunkify( this.db.transactionQuery.bind( this.db ) );
+        this.db.query = util.promisify( this.db.query.bind( this.db ) );
+        this.db.transactionQuery = util.promisify( this.db.transactionQuery.bind( this.db ) );
     }
 
     public async query( sql: string, where: Array<any> ): Promise<Array<any>|any> {

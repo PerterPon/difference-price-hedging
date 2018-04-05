@@ -6,13 +6,28 @@
 */
 
 import { AIO } from './aio';
+import { Coin } from 'core/enums/util';
 
 const aio = new AIO();
 
 const [ processName, targetName, symbol ] = process.argv;
 
+interface Global {
+  symbol: Coin;
+}
+
+// 当前搜索的币种
+( global as any ).symbol = symbol;
+// 盈利倍数，只有超过这个数值，才会触发action
+( global as any ).thBuffer = 0.1;
+
 async function start(): Promise<void> {
-  await aio.start( symbol );
+  try {
+    await aio.start();
+  } catch ( e ) {
+    console.log( e );
+  }
+  
 }
 
 start();

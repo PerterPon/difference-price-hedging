@@ -11,6 +11,7 @@ import * as NodeUtil from 'util';
 import * as Util from 'core/util';
 
 import Log from 'core/log';
+import { Coin } from 'core/enums/util';
 
 const log = Log( 'Writer' );
 
@@ -29,6 +30,8 @@ export class Writer {
 
     constructor( name: string ) {
         this.name = name;
+        const coin: Coin = ( global as any ).symbol;
+        Writer.symbol = coin;
         const logFolder: string = path.join( __dirname, `../${ Writer.symbol }-log` );
         this.targetFile = path.join( logFolder, `${ name }.log` );
         this.initLogFolder( logFolder );

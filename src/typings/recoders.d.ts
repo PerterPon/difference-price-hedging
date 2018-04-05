@@ -1,27 +1,29 @@
 
 declare module "recoders-types" {
 
-    export enum Coin {
-        BTC = 'btc',
-        ETH = 'eth',
-        LTC = 'ltc'
-    }
+    import { Coin, ActionType } from 'core/enums/util';
+
+    // export enum Coin {
+    //     BTC = 'btc',
+    //     ETH = 'eth',
+    //     LTC = 'ltc'
+    // }
 
     export type Account = {
         id: number;
         gmt_create?: Date;
         gmt_modify?: Date;
         cash: number;
-        coid: number;
+        coins: number;
         name: number;
         coin: Coin;
         is_deleted: number;
     };
 
-    export enum ActionType {
-        SELL = 0,
-        BUY = 1
-    }
+    // export enum ActionType {
+    //     SELL,
+    //     BUY
+    // }
 
     export type Action = {
         id: number;

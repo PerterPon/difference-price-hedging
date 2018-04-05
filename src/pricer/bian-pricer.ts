@@ -4,19 +4,21 @@
   Create: Sat Mar 10 2018 08:01:44 GMT+0800 (CST)
 */
 
-import { PricerInterface } from './pricer';
+import { IPricer } from './pricer';
 import * as _ from 'lodash';
 import * as Binance from 'binance/lib/binance';
 
 import { BookData } from 'exchange-types';
+import { Coin } from 'core/enums/util';
 
-export class BianPricer implements PricerInterface {
+export class BianPricer implements IPricer {
 
     private binance;
     private symbol: string;
 
-    constructor( symbol: string ) {
-        this.symbol = symbol;
+    constructor() {
+        const coin: Coin = ( global as any ).symbol;
+        this.symbol = `${ coin.toUpperCase() }USDT`;
     }
 
     private bookDataDone: ( data: BookData ) => void;

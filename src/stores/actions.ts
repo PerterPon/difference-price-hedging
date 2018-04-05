@@ -5,23 +5,25 @@
 */
 
 import { Db } from 'core/db';
-
-import { Action, ActionType, Coin } from 'recoders-types';
+import { Action } from 'recoders-types';
+import { ActionType, Coin } from 'core/enums/util';
 
 const db: Db = Db.getInstance();
 
-export async function addAction( accountId: number, action: ActionType, price: number, count: number, done: number, coin: Coin ): Promise<number> {
+export async function addAction( accountName: string, action: ActionType, price: number, count: number, done: number, coin: Coin, thBuffer: number ): Promise<number> {
 
     const sql: string = `
     INSERT INTO actions (
-        account_id,
+        account_name,
         action,
         price,
         count,
         done,
-        coin
+        coin,
+        th_buffer
     )
     VALUES (
+        ?,
         ?,
         ?,
         ?,
@@ -31,7 +33,7 @@ export async function addAction( accountId: number, action: ActionType, price: n
     )
     `;
 
-    const where: Array<any> = [ accountId, action, price, count, done, coin ];
+    const where: Array<any> = [ accountName, action, price, count, done, coin ];
     const data = await db.query( sql, where );
     return data.insertId;
 

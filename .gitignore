@@ -3,3 +3,5 @@ build
 npm-debug.log
 result.log
 mysql-conf.json
+.vscode
+package-lock.json

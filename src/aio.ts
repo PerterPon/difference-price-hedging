@@ -5,7 +5,7 @@
   Create: Fri Mar 09 2018 07:13:43 GMT+0800 (CST)
 */
 
-import { PricerInterface } from 'pricer/pricer';
+import { IPricer } from 'pricer/pricer';
 import { BianPricer } from 'pricer/bian-pricer';
 import { BFXPricer } from 'pricer/bfx-pricer';
 import { BitfinexPricer } from 'pricer/bitfinex-pricer';
@@ -24,8 +24,9 @@ import Log from 'core/log';
 import { Writer } from 'core/writer';
 import { Db } from 'core/db';
 
-import { THAction, TradeAction, TradeName } from 'trade-types';
+import { THAction, TradeAction, TradeName, Trade } from 'trade-types';
 import { BookData } from 'exchange-types';
+import { Coin } from 'core/enums/util';
 
 const log = Log( 'AIO' );
 
@@ -33,8 +34,14 @@ const BFX_TRADE  = 'bitfinex';
 const BIAN_TRADE = 'binance';
 const HUOBI_TRADE = 'huobi';
 
+const PricersMap = {
+  [ BFX_TRADE ]  : BFXPricer,
+  [ BIAN_TRADE ] : BianPricer,
+  [ HUOBI_TRADE ]: HuobiPricer
+};
+
 type Traders = Map<TradeName, Trader>;
-type Pricers = Map<TradeName, PricerInterface>;
+type Pricers = Map<TradeName, IPricer>;
 
 export class AIO {
 
@@ -42,24 +49,23 @@ export class AIO {
   private pricers: Pricers = new Map();
   private traders: Traders = new Map();
 
-  private symbol: string;
-
   private currentAction: THAction;
 
-  public async start( symbol: string ):Promise<void>{
-    this.symbol = symbol;
-    Writer.symbol = symbol;
-
+  public async start():Promise<void>{
     InitRepotor();
 
-    this.initCore();
+    await this.initCore();
 
-    this.initTrader();
+    await this.initTrader();
     this.initCompare();
-    this.initPricer();    
+    await this.initPricer();
+
+    log.log( 'all module init success!' );
+    log.log( 'listting book data...' );
   }
 
   private initCore(): void {
+    log.log( 'initing database' );
     const db: Db = Db.getInstance();
     db.init();
   }
@@ -83,112 +89,47 @@ export class AIO {
     }
   }
 
-  private initTrader(): void {
+  private async initTrader(): Promise<void> {
     log.log( 'init trader ...' );
-    this.traders.set( BFX_TRADE, new BitfinexTrader );
-    this.traders.set( BIAN_TRADE, new BianTrader );
-    this.traders.set( HUOBI_TRADE, new HuobiTrader );
+    const bfxTrader: Trader = new BitfinexTrader();
+    await bfxTrader.init();
+    this.traders.set( BFX_TRADE, bfxTrader );
+    const bianTrader: Trader = new BianTrader();
+    await bianTrader.init();
+    this.traders.set( BIAN_TRADE, bianTrader );
+    const huobiTrader: Trader = new HuobiTrader();
+    await huobiTrader.init();
+    this.traders.set( HUOBI_TRADE, huobiTrader );
   }
 
-  private initPricer(): void {
+  private async initPricer(): Promise<void> {
     log.log( 'init pricer ...' );
-    this.bfxBook();
-    // this.bitfinexBook();
-    this.binanceBook();
-    this.huobiBook();
+
+    this.subscribeBookData( BFX_TRADE );
+    this.subscribeBookData( BIAN_TRADE );
+    this.subscribeBookData( HUOBI_TRADE );
+
   }
 
-  private async bitfinexBook(): Promise<void> {
+  private async subscribeBookData( traderName: string ): Promise<void> {
 
-    const { symbol } = this;
-    const pricer: BitfinexPricer = new BitfinexPricer( `t${ symbol.toUpperCase() }USD` );
-
-    this.pricers.set( BFX_TRADE, pricer );
+    const pricer: IPricer = new PricersMap[ traderName ]();
+    this.pricers.set( traderName, pricer );
     await pricer.init();
 
     while( true ) {
       try {
         const bookData: BookData = await pricer.getBook();
-        const trader: Trader = await this.traders.get( BFX_TRADE );
-        const useage: boolean = this.checkPriceAndCountUsage( BFX_TRADE, bookData );
-        if ( false === useage ) {
-          reportLatestPrice( BFX_TRADE, bookData );
-          this.compare.update( BFX_TRADE, bookData, trader.feeds, trader.balance );
+        const trader: Trader = this.traders.get( traderName );
+        const usage: boolean = this.checkPriceAndCountUsage( traderName, bookData );
+        if ( false === usage ) {
+          reportLatestPrice( traderName, bookData );
+          this.compare.update( traderName, bookData, trader.feeds, trader.balance );
         }
-      } catch( e ) {  
-        reportError( e );
-      }
-    } 
-
-  }
-
-  private async bfxBook(): Promise<void> {
-
-    const { symbol } = this;
-
-    const pricer: BFXPricer = new BFXPricer( `t${ symbol.toUpperCase() }USD` );
-
-    this.pricers.set( BFX_TRADE, pricer );
-    await pricer.init();
-
-    while( true ) {
-      try {
-        const bookData: BookData = await pricer.getBook();
-        const trader: Trader = await this.traders.get( BFX_TRADE );
-        const useage: boolean = this.checkPriceAndCountUsage( BFX_TRADE, bookData );
-        if ( false === useage ) {
-          reportLatestPrice( BFX_TRADE, bookData );
-          this.compare.update( BFX_TRADE, bookData, trader.feeds, trader.balance );
-        }
-      } catch( e ) {
+      } catch ( e ) {
         reportError( e );
       }
     }
-  }
-
-  private async binanceBook(): Promise<void> {
-    const { symbol } = this;
-    const bianPricer: BianPricer = new BianPricer( `${ symbol.toUpperCase() }USDT` );
-
-    this.pricers.set( BIAN_TRADE, bianPricer );
-    await bianPricer.init();
-
-    try {
-      while ( true ) {
-        const trader: Trader = this.traders.get( BIAN_TRADE );
-        const data: BookData = await bianPricer.getBook();
-        const usage: boolean = this.checkPriceAndCountUsage( BIAN_TRADE, data );
-        if ( false === usage ) {
-          reportLatestPrice( BIAN_TRADE, data );
-          this.compare.update( BIAN_TRADE, data, trader.feeds, trader.balance );
-        }
-      }
-    } catch( e ) {
-      reportError( e );
-    }
-  }
-
-  private async huobiBook(): Promise<void> {
-    const { symbol } = this;
-    const huobiPricer: HuobiPricer = new HuobiPricer( `${ symbol }usdt` );
-
-    this.pricers.set( HUOBI_TRADE, huobiPricer );
-    await huobiPricer.init();
-
-    try {
-      while( true ) {
-        const trader: Trader = this.traders.get( HUOBI_TRADE );
-        const data: BookData = await huobiPricer.getBook();
-        const usage: boolean = this.checkPriceAndCountUsage( HUOBI_TRADE, data );
-        if ( false === usage ) {
-          reportLatestPrice( HUOBI_TRADE, data );
-          this.compare.update( HUOBI_TRADE, data, trader.feeds, trader.balance );
-        }
-      }
-    } catch( e ) {
-      reportError( e );
-    }
-
   }
 
   private checkPriceAndCountUsage( name: TradeName, data: BookData ): boolean {

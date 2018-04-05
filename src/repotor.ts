@@ -10,6 +10,8 @@ import { TradeName, Balance, THAction } from 'trade-types';
 import { BookData } from 'exchange-types';
 import { Writer } from 'core/writer';
 
+import { Coin, ActionType } from 'core/enums/util';
+
 import Log from 'core/log';
 const log = Log( 'REPOTOR' );
 
@@ -21,6 +23,12 @@ let actionWriter: Writer;
 let nonLeftWriter: Writer;
 
 let errorWriter: Writer;
+
+function doReport( type: string, content: string ): void {
+    log.log( `========= ${ type } =========` );
+    log.log( content );
+    log.log( '=============================' );
+}
 
 export function init() {
     priceWriter = new Writer( 'price' );
@@ -56,33 +64,31 @@ export function reportTotal( traders:Map<TradeName, Trader> ): void {
 
     const totalContent: string = `cash: [${ totalCash }], coin: [${ totalCoin }]`;
 
-    log.log( '============ total ===============' );
-    log.log( `|| ${ totalContent }` );
-    log.log( '==================================' );
+    doReport( 'total', totalContent );
 
     const content: string = log.assemblyLog( 'total', totalContent );
     totalWriter.updateContent( content );
 
     const detailContent: string = log.assemblyLog( 'detail', `\n${traderDetail}` );
     totalWriter.updateContent( detailContent );
-
+    
 }
 
 export function reportError( e: Error ): void {
     const { message, stack } = e;
-    log.error( '========== error ===============' );
-    log.error( message );
-    log.error( stack );
-    log.error( '================================' );
+    doReport( 'error', `${message}\n${stack}` );
     const errorContent: string = log.assemblyLog( 'error', `${stack}\n${message}` );
     errorWriter.updateContent( errorContent );
 }
 
 export function reportNoneLeft( aTradeName: TradeName, aBalance: Balance, bTradeName: TradeName, bBalance: Balance ): void {
-    log.warn( '========== None Left ===============' );
-    log.warn( `|| trade: [${aTradeName}], cash: [${aBalance.cash}], coin: [${aBalance.coin}]` );
-    log.warn( `|| trade: [${bTradeName}], cash: [${bBalance.cash}], coin: [${bBalance.coin}]` );
-    log.warn( '====================================' );
+
+    const content: string = `
+    || trade: [${ aTradeName }], cash: [${ aBalance.cash }], coin: [${ aBalance.coin }]
+    || trade: [${ bTradeName }], cash: [${ bBalance.cash }], coin: [${ bBalance.coin }]
+    `;
+
+    doReport( 'none left', content );
 }
 
 const lastestPriceMap = {};
@@ -95,10 +101,6 @@ export function reportLatestPrice( name: TradeName, data: BookData ): void {
         content += `name: [${ traderName }] bookData: [${ JSON.stringify( traderData ) }]\n`;
     }
     content += '------------------------------------';
-    // const content: string = `name: [${ name }] bookData: [${ JSON.stringify( data )}]`;
-    // log.log( '========== lastest price ============' );
-    // log.log( `|| name: [${name}] bookData: [${JSON.stringify( data )}]` );
-    // log.log( '=====================================' );
     const priceContent: string = log.assemblyLog( 'price', content );
     priceWriter.updateContent( priceContent );
 }
@@ -107,30 +109,30 @@ export function reportAction( actions: THAction ): void {
     let content: string = ``;
     for( let [name, action] of actions ) {
         const { sell, buy, price, count } = action;
+        let currentAction: ActionType = null;
+        if ( true === sell && false === buy ) {
+            currentAction = ActionType.SELL;
+        } else if ( false === sell && true === buy ) {
+            currentAction = ActionType.BUY;
+        }
+
         content += `[${name}] action: [${sell?"sell":""}${buy?"buy":""}] price: [${price}], count: [${count}]\n`;
     }
 
-    log.log( '=========== action ===============' );
-    log.log( `|| ${content}` );
-    log.log( '==================================' );
+    doReport( 'action', content );
     const actionContent: string = log.assemblyLog( 'action', content );
     actionWriter.updateContent( actionContent );
 }
 
-export function reportFeeds( totalFeeds: number, buyFeeds: number, sellFeeds: number ): void {
+export function reportFeeds(  totalFeeds: number, buyFeeds: number, sellFeeds: number ): void {
     let content: string = `total feed: [${totalFeeds}], buy feeds: [${buyFeeds}], sell feeds: [${sellFeeds}]`;
-    log.log( '========== feeds =================' );
-    log.log( `|| ${content}` );
-    log.log( '==================================' );
+    doReport( 'feeds', content );
     const feedsContent: string = log.assemblyLog( 'feeds', content );
     feedsWriter.updateContent( feedsContent );
 }
 
 export function reportLatestProfit( dis: number, feed: number, profit: number ): void {
     const content: string = `profit: [${ profit}], distance: [${dis}], feed: [${feed}]`;
-    // log.log( '=========== profit ==================' );
-    // log.log( `|| ${content}` );
-    // log.log( '=====================================' );
     const profitContent: string = log.assemblyLog( 'profit', content );
     profitWriter.updateContent( profitContent );
 }

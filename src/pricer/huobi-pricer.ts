@@ -7,12 +7,13 @@
 "use strict";
 
 import { HuobiConnection } from 'connections/huobi-connection';
-import { PricerInterface } from './pricer';
+import { IPricer } from './pricer';
 import { BookData } from 'exchange-types';
 
 import { ConnectionEvents } from 'core/enums/connection'
+import { Coin } from 'core/enums/util';
 
-export class HuobiPricer implements PricerInterface {
+export class HuobiPricer implements IPricer {
     
     private connection: HuobiConnection;
     private symbol: string;
@@ -21,9 +22,10 @@ export class HuobiPricer implements PricerInterface {
 
     private currentPrice: BookData = {} as BookData;
 
-    constructor( symbol: string ) {
-        this.symbol = symbol;
-        this.connection = new HuobiConnection( symbol );
+    constructor() {
+        const coin: Coin = ( global as any ).symbol;
+        this.symbol = `${ coin.toLowerCase() }usdt`;
+        this.connection = new HuobiConnection( this.symbol );
     }
 
     public async init(): Promise<void> {

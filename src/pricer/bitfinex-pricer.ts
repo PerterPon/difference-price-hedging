@@ -4,11 +4,12 @@
   Create: Sat Mar 10 2018 08:01:44 GMT+0800 (CST)
 */
 
-import { PricerInterface } from './pricer';
+import { IPricer } from './pricer';
 import * as _ from 'lodash';
 import { BitfinexConnection, ChannelId } from 'connections/bitfinex-connection';
 import { ConnectionEvents } from 'core/enums/connection';
 import { BookData } from 'exchange-types';
+import { Coin } from 'core/enums/util';
 
 type BookUpdateData = [
     ChannelId,
@@ -45,7 +46,7 @@ type TickUpdateData = [
     number
 ];
 
-export class BitfinexPricer implements PricerInterface {
+export class BitfinexPricer implements IPricer {
 
     private connection:BitfinexConnection;
     private tickerChannelId: string;
@@ -55,8 +56,9 @@ export class BitfinexPricer implements PricerInterface {
 
     private currentBookData: BookData = {} as BookData;
 
-    constructor( symbol: string ) {
-        this.connection = new BitfinexConnection( symbol );
+    constructor() {
+        const coin: Coin = ( global as any ).symbol;
+        this.connection = new BitfinexConnection( `t${coin.toUpperCase()}USD` );
     }
 
     public async init(): Promise<void> {
