@@ -7,6 +7,8 @@
         "eth": "tsc && cd build && NODE_PATH=. node index eth",
         "ltc": "tsc && cd build && NODE_PATH=. node index ltc",
         "btc": "tsc && cd build && NODE_PATH=. node index btc",
+        "neo": "tsc && cd build && NODE_PATH=. node index neo",
+        "qtum": "tsc && cd build && NODE_PATH=. node index qtum",
         "test:connection": "tsc && cd build && NODE_PATH=. node test-connection",
         "test:trade": "tsc && cd build && NODE_PATH=. node test-trader"
     },

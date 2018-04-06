@@ -17,8 +17,4 @@ export class BianTrader extends Trader {
         sell: 0.001
     };
 
-    public name: string = 'binance';
-
-    protected log = Log( 'bian' );
-
 }

@@ -5,3 +5,6 @@ result.log
 mysql-conf.json
 .vscode
 package-lock.json
+keys-conf.json
+test-trader.ts
+test-connection.ts

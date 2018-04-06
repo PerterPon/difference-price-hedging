@@ -15,7 +15,4 @@ export class HuobiTrader extends Trader {
         sell: 0.002
     };
 
-    public name: string = 'huobi';
-    protected log = Log( 'huobi' );
-
 }

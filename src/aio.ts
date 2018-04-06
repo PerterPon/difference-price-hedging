@@ -16,6 +16,8 @@ import { BianTrader } from 'trader/bian-trader';
 import { BitfinexTrader } from 'trader/bitfinex-trader';
 import { HuobiTrader } from 'trader/huobi-trader';
 
+import { BFXConnection } from 'connections/bfx-connnection';
+
 import { Compare } from './compare';
 import { Excutor } from './excutor';
 import { init as InitRepotor, reportTotal, reportError, reportLatestPrice } from 'repotor';
@@ -53,7 +55,7 @@ export class AIO {
 
   public async start():Promise<void>{
     InitRepotor();
-
+    await this.initConnetions();
     await this.initCore();
 
     await this.initTrader();
@@ -61,13 +63,28 @@ export class AIO {
     await this.initPricer();
 
     log.log( 'all module init success!' );
-    log.log( 'listting book data...' );
+    log.log( 'listening book data...' );
+  }
+
+  private async initConnetions(): Promise<void> {
+    log.log( 'initing connetions...' );
+
+    const { apiKeys } = global;
+    const bfxKey = apiKeys[ BFX_TRADE ];
+    const bfx: BFXConnection = BFXConnection.getInstance();
+    log.log( 'initing bfx connection...' );
+    await bfx.init( bfxKey.key, bfxKey.secret );
+
+    log.log( 'connection init success!' );
+
   }
 
   private initCore(): void {
-    log.log( 'initing database' );
+    log.log( 'initing database...' );
     const db: Db = Db.getInstance();
     db.init();
+
+    log.log( 'core init success!' );
   }
 
   private async initCompare(): Promise<void> {
@@ -91,15 +108,22 @@ export class AIO {
 
   private async initTrader(): Promise<void> {
     log.log( 'init trader ...' );
-    const bfxTrader: Trader = new BitfinexTrader();
-    await bfxTrader.init();
-    this.traders.set( BFX_TRADE, bfxTrader );
-    const bianTrader: Trader = new BianTrader();
-    await bianTrader.init();
-    this.traders.set( BIAN_TRADE, bianTrader );
-    const huobiTrader: Trader = new HuobiTrader();
-    await huobiTrader.init();
-    this.traders.set( HUOBI_TRADE, huobiTrader );
+    // const bfxTrader: Trader = new BitfinexTrader();
+    // bfxTrader.name = BFX_TRADE;
+    // await bfxTrader.init();
+    // this.traders.set( BFX_TRADE, bfxTrader );
+
+    // const bianTrader: Trader = new BianTrader();
+    // bianTrader.name = BIAN_TRADE;
+    // await bianTrader.init();
+    // this.traders.set( BIAN_TRADE, bianTrader );
+
+    // const huobiTrader: Trader = new HuobiTrader();
+    // huobiTrader.name = HUOBI_TRADE;
+    // await huobiTrader.init();
+    // this.traders.set( HUOBI_TRADE, huobiTrader );
+
+    log.log( 'trader init success!' );
   }
 
   private async initPricer(): Promise<void> {
@@ -109,11 +133,13 @@ export class AIO {
     this.subscribeBookData( BIAN_TRADE );
     this.subscribeBookData( HUOBI_TRADE );
 
+    log.log( 'pricer init success!' );
   }
 
   private async subscribeBookData( traderName: string ): Promise<void> {
 
     const pricer: IPricer = new PricersMap[ traderName ]();
+    pricer.name = traderName;
     this.pricers.set( traderName, pricer );
     await pricer.init();
 

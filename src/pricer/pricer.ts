@@ -10,6 +10,7 @@ import { BookData } from 'exchange-types';
 
 export interface IPricer {
 
+  name: string;
   init(): Promise<void>;
   getBook(): Promise<BookData>;
   // getTick(): Promise<TickData>;

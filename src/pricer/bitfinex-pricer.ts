@@ -46,8 +46,13 @@ type TickUpdateData = [
     number
 ];
 
+const CoinMap = {
+    'QTUM' : 'QTM'
+};
+
 export class BitfinexPricer implements IPricer {
 
+    public name: string;
     private connection:BitfinexConnection;
     private tickerChannelId: string;
 
@@ -58,7 +63,8 @@ export class BitfinexPricer implements IPricer {
 
     constructor() {
         const coin: Coin = global.symbol;
-        this.connection = new BitfinexConnection( `t${coin.toUpperCase()}USD` );
+        const mappedCoin: string = CoinMap[ coin.toUpperCase() ] || coin;
+        this.connection = new BitfinexConnection( `t${ mappedCoin.toUpperCase()}USD` );
     }
 
     public async init(): Promise<void> {

@@ -16,7 +16,8 @@ import { Coin } from 'core/enums/util';
 import { BookData, TOrderBook, TOrderBookContent, TOrderBookItem } from 'exchange-types';
 
 export class HuobiPricer implements IPricer {
-    
+
+    public name: string;
     private connection: HuobiConnection;
     private symbol: string;
 

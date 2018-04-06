@@ -15,6 +15,7 @@ import { BookData, TOrderBook, TOrderBookContent, TOrderBookItem } from 'exchang
 
 export class BianPricer implements IPricer {
 
+    public name: string;
     private binance;
     private symbol: string;
     private orderBook: OrderBoook = new OrderBoook();
