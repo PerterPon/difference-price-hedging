@@ -148,8 +148,6 @@ export class AIO {
     while( true ) {
       try {
         const bookData: BookData = await pricer.getBook();
-        console.log( '--------', traderName );
-        console.log( bookData );
         const trader: Trader = this.traders.get( traderName );
         const usage: boolean = this.checkPriceAndCountUsage( traderName, bookData );
         if ( false === usage ) {
