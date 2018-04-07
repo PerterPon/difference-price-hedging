@@ -5,7 +5,7 @@
   Create: Sat Apr 07 2018 06:53:07 GMT+0800 (CST)
 */
 
-import { Trader } from './new-treader';
+import { Trader } from './trader';
 
 import Log from 'core/log';
 import { BinanceConnection } from 'connections/binance-connection';

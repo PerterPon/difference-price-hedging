@@ -11,7 +11,7 @@ import * as _ from 'lodash';
 import * as util from 'core/util';
 
 import { BFXConnection } from 'connections/bfx-connnection';
-import { Trader } from './new-treader';
+import { Trader } from './trader';
 import Log from 'core/log';
 import { Coin, ActionType } from 'core/enums/util';
 

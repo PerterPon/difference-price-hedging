@@ -20,7 +20,8 @@ import { BFXConnection } from 'connections/bfx-connnection';
 import { BinanceConnection } from 'connections/binance-connection';
 
 import { Compare } from './compare';
-import { Excutor } from './excutor';
+// import { Excutor } from './excutor';
+import { BalanceExcutor } from 'excutor/balance-excutor';
 import { init as InitRepotor, reportTotal, reportError, reportLatestPrice } from 'repotor';
 
 import Log from 'core/log';
@@ -96,37 +97,33 @@ export class AIO {
     log.log( 'init compare ...' );
     this.compare = new Compare();
     const { traders } = this;
-    while( true ) {
+    // while( true ) {
       try {
         // 获得操作action
         const action: THAction = await this.compare.getAction();
         // 执行操作
-        const excutor: Excutor = Excutor.getInstance();
-        excutor.excute( action, traders );
+        const excutor: BalanceExcutor = new BalanceExcutor();
+        await excutor.excute( action, traders );
         // 汇报
         reportTotal( traders );
       } catch( e ) {
         reportError( e );
       }
-    }
+    // }
   }
 
   private async initTrader(): Promise<void> {
     log.log( 'init trader ...' );
-    // const bfxTrader: Trader = new BitfinexTrader();
-    // bfxTrader.name = BFX_TRADE;
-    // await bfxTrader.init();
-    // this.traders.set( BFX_TRADE, bfxTrader );
 
-    // const bianTrader: Trader = new BianTrader();
-    // bianTrader.name = BIAN_TRADE;
-    // await bianTrader.init();
-    // this.traders.set( BIAN_TRADE, bianTrader );
+    const bfxTrader: Trader = new BitfinexTrader();
+    bfxTrader.name = BFX_TRADE;
+    await bfxTrader.init();
+    this.traders.set( BFX_TRADE, bfxTrader );
 
-    // const huobiTrader: Trader = new HuobiTrader();
-    // huobiTrader.name = HUOBI_TRADE;
-    // await huobiTrader.init();
-    // this.traders.set( HUOBI_TRADE, huobiTrader );
+    const bianTrander: Trader = new BianTrader();
+    bianTrander.name = BIAN_TRADE;
+    await bianTrander.init();
+    this.traders.set( BIAN_TRADE, bianTrander );
 
     log.log( 'trader init success!' );
   }
@@ -136,7 +133,7 @@ export class AIO {
 
     this.subscribeBookData( BFX_TRADE );
     this.subscribeBookData( BIAN_TRADE );
-    this.subscribeBookData( HUOBI_TRADE );
+    // this.subscribeBookData( HUOBI_TRADE );
 
     log.log( 'pricer init success!' );
   }
@@ -151,6 +148,8 @@ export class AIO {
     while( true ) {
       try {
         const bookData: BookData = await pricer.getBook();
+        console.log( '--------', traderName );
+        console.log( bookData );
         const trader: Trader = this.traders.get( traderName );
         const usage: boolean = this.checkPriceAndCountUsage( traderName, bookData );
         if ( false === usage ) {

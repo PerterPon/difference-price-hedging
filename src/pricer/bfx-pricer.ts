@@ -38,22 +38,16 @@ export class BFXPricer implements IPricer {
     public async init(): Promise<void> {
         const bfx: BFXConnection = BFXConnection.getInstance();
         const ws = bfx.ws;
-        ws.on( 'error', reportError );
-        ws.on( 'open', this.onOpen.bind( this ) );
-        ws.onOrderBook( { symbol: this.currentSymbol }, this.onBookData.bind( this ) );
-        ws.open();
-    }
-
-    private onOpen(): void {
-        const bfx: BFXConnection = BFXConnection.getInstance();
-        const ws = bfx.ws;
         ws.subscribeOrderBook( this.currentSymbol );
+        ws.onOrderBook( { symbol: this.currentSymbol }, this.onBookData.bind( this ) );
     }
 
     private onBookData( data ): void {
-        const { bids, asks } = data;
-        const [ bid ] = bids;
-        const [ ask ] = asks;
+        if ( false === _.isArray( data ) || 2 > data.length ) {
+            return;
+        }
+        const bid = data[ 0 ];
+        const ask = data[ data.length - 1 ];
 
         const [ bidPrice, bidOrders, bidCount ] = bid || [] as any;
         const [ askPrice, askOrders, askCount ] = ask || [] as any;

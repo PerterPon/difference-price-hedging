@@ -48,7 +48,11 @@ export function MultiBookTh( data: Map<TradeName, Exchange> ): THAction {
     const askCash: number = askExchange.balance.cash;
     const bidCoin: number = bidExchange.balance.coin;
 
-    const count: number = calCount( askCount, bidCount, askCash, askPrice, bidCoin );
+    let count: number = calCount( askCount, bidCount, askCash, askPrice, bidCoin );
+    // TODO: safe
+    if ( count > 0.002 ) {
+        count = 0.002;
+    }
 
     if ( count <= 0 ) {
         reportNoneLeft( ask, askExchange.balance, bid, bidExchange.balance );
