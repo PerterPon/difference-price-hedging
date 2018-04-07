@@ -17,6 +17,7 @@ import { BitfinexTrader } from 'trader/bitfinex-trader';
 import { HuobiTrader } from 'trader/huobi-trader';
 
 import { BFXConnection } from 'connections/bfx-connnection';
+import { BinanceConnection } from 'connections/binance-connection';
 
 import { Compare } from './compare';
 import { Excutor } from './excutor';
@@ -70,13 +71,17 @@ export class AIO {
     log.log( 'initing connetions...' );
 
     const { apiKeys } = global;
+    log.log( 'initing bfx connection...' );
     const bfxKey = apiKeys[ BFX_TRADE ];
     const bfx: BFXConnection = BFXConnection.getInstance();
-    log.log( 'initing bfx connection...' );
     await bfx.init( bfxKey.key, bfxKey.secret );
 
-    log.log( 'connection init success!' );
+    log.log( 'initing binance connection....' );
+    const binanceKey = apiKeys[ BIAN_TRADE ];
+    const bian: BinanceConnection = BinanceConnection.getInstance();
+    await bian.init( binanceKey.key, binanceKey.secret );
 
+    log.log( 'connection init success!' );
   }
 
   private initCore(): void {

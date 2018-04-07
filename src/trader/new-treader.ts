@@ -37,7 +37,7 @@ export class Trader {
     protected buyPool: Map<ActionId, ActionContent> = new Map();
     protected sellPool: Map<ActionId, ActionContent> = new Map();
 
-    private log;
+    protected log;
 
     protected async initConnection(): Promise<void> {
 
@@ -72,6 +72,13 @@ export class Trader {
 
     public async whenCompleteBuy( actionId: ActionId ): Promise<void> {
         return new Promise<void>( ( resolve, reject ) => {
+            debugger;
+            const done: boolean = this.checkActionDone( actionId, ActionType.BUY );
+            if ( true === done ) {
+                process.nextTick( resolve );
+                return;
+            }
+
             const action: ActionContent = this.buyPool.get( actionId );
             action.cb = resolve;
             this.buyPool.set( actionId, action );
@@ -80,10 +87,27 @@ export class Trader {
 
     public async whenCompleteSell( actionId: ActionId ): Promise<void> {
         return new Promise<void>( ( resolve, reject ) => {
+            debugger;
+            const done: boolean = this.checkActionDone( actionId, ActionType.SELL );
+            if ( true === done ) {
+                process.nextTick( resolve );
+                return;
+            }
+
             const action: ActionContent = this.sellPool.get( actionId );
             action.cb = resolve;
             this.buyPool.set( actionId, action );
         } );
+    }
+
+    private checkActionDone( actionId: number, type: ActionType ): boolean {
+        let actionContent: ActionContent;
+        if ( ActionType.BUY === type ) {
+            actionContent = this.buyPool.get( actionId );
+        } else if ( ActionType.SELL === type ) {
+            actionContent = this.sellPool.get( actionId );
+        }
+        return actionContent.done;
     }
 
     public async cancelBuy( actionId: number ): Promise<boolean> {
@@ -96,9 +120,18 @@ export class Trader {
 
     protected async doAction( price: number, count: number, type: ActionType ):Promise<ActionId> {
         const actionId: ActionId = await this.beforeDoAction( price, count, type );
+
+        const actionContent: ActionContent = {
+            done: false,
+            price,
+            count
+        };
+
         if ( ActionType.BUY === type ) {
+            this.buyPool.set( actionId, actionContent );
             await this.doBuy( actionId, price, count );
         } else if ( ActionType.SELL === type ) {
+            this.sellPool.set( actionId, actionContent );
             await this.doSell( actionId, price, count );
         }
         return actionId;
@@ -108,11 +141,6 @@ export class Trader {
         const coin: Coin = global.symbol;
         const thBuffer: number = global.thBuffer;
         const actionId: number = await ActionStore.addAction( this.name, type, price, count, 0, coin, thBuffer );
-        this.buyPool.set( actionId, {
-            done: false,
-            price,
-            count
-        } );
         return actionId;
     }
 
@@ -134,41 +162,53 @@ export class Trader {
 
     private async completeAction( actionId: number, type: ActionType ): Promise<void> {
 
-        this.updateBalance( actionId, type );
+        debugger;
         let action: ActionContent = null;
         let cb = null;
         if ( ActionType.BUY === type ) {
             action = this.buyPool.get( actionId );
             cb = action.cb;
-            action.done = true;
-            action.cb = null;
         } else if ( ActionType.SELL === type ) {
             action = this.sellPool.get( actionId );
             cb = action.cb;
-            action.done = true;
-            action.cb = null;
         }
 
-        await this.storeComplete( actionId, type );
-
-        if ( ActionType.BUY === type ) {
-            this.buyPool.delete( actionId );
-        } else if ( ActionType.SELL === type ) {
-            this.sellPool.delete( actionId );
-        }
+        // 旁路存储，不阻塞当前函数执行
+        this.storeComplete( actionId, type );
+        this.updateBalance( actionId, type );
 
         if ( true === _.isFunction( cb ) ) {
+            if ( ActionType.BUY === type ) {
+                this.buyPool.delete( actionId );
+            } else if ( ActionType.SELL === type ) {
+                this.sellPool.delete( actionId );
+            }
+
             cb();
+        } else {
+
+            action.done = true;
+            if ( ActionType.BUY === type ) {
+                this.buyPool.set( actionId, action );
+            } else if ( ActionType.SELL === type ) {
+                this.sellPool.set( actionId, action );
+            }
         }
     }
 
-    private updateBalance( actionId: number, type ): void {
-
+    private updateBalance( actionId: number, type: ActionType ): void {
         let action: ActionContent;
         if ( ActionType.BUY === type ) {
             action = this.buyPool.get( actionId );
-        } else {
+        } else if ( ActionType.SELL === type ) {
             action = this.sellPool.get( actionId );
+        }
+
+        if ( void( 0 ) == action ) {
+            let error = new Error( `trying to update balance, but action: [${actionId}] was not found!` );
+            this.log.error( error.message );
+            reportError( error );
+            return;
         }
 
         let cashDis: number = 0;
@@ -194,9 +234,9 @@ export class Trader {
 
     private async storeComplete( actionId: number, type: ActionType ): Promise<void> {
         const coin: Coin = global.symbol;
-        await ActionStore.updateAction( actionId, 1 );
         const { balance } = this;
         const feed: number = this.getFeedsByActionId( actionId, type );
+        await ActionStore.updateAction( actionId, 1 );
         await AccountStore.addAcounts( this.name, balance.cash, balance.coin, coin );
         await FeedStore.addFeeds( this.name, type, feed, coin, actionId );
     }

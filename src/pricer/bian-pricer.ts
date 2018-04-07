@@ -4,12 +4,13 @@
   Create: Sat Mar 10 2018 08:01:44 GMT+0800 (CST)
 */
 
-import { IPricer } from './pricer';
 import * as _ from 'lodash';
-import * as Binance from 'binance/lib/binance';
 
+// import * as Binance from 'binance/lib/binance';
+import { BinanceConnection } from 'connections/binance-connection';
 import { Coin } from 'core/enums/util';
 import { OrderBoook } from 'order-books/order-book';
+import { IPricer } from './pricer';
 
 import { BookData, TOrderBook, TOrderBookContent, TOrderBookItem } from 'exchange-types';
 
@@ -30,7 +31,9 @@ export class BianPricer implements IPricer {
     private currentBookData: BookData = {} as BookData;
 
     public async init(): Promise<void> {
-        this.binance = new Binance.BinanceWS( true );
+        // this.binance = new Binance.BinanceWS( true );
+        const bian: BinanceConnection = BinanceConnection.getInstance();
+        this.binance = bian.binanceWS;
         this.binance.onDepthUpdate( this.symbol, this.onBookData.bind( this ) );
     }
 

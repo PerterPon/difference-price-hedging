@@ -35,7 +35,7 @@ export class BFXConnection {
         } );
         const ws = bfx.ws( 2, {
             manageOrderBooks: true,  // tell the ws client to maintain full sorted OBs
-            // transform: true          // auto-transform array OBs to OrderBook objects
+            // transform: false          // auto-transform array OBs to OrderBook objects
         } );
         // const ws = bfx.ws( 2 );
         this.ws = ws;
