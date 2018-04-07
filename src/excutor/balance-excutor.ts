@@ -19,11 +19,9 @@ export class BalanceExcutor {
             const { sell, buy, price, count } = action;
 
             if ( true === sell && false === buy ) { 
-
                 tradeActions.push(
                     trader.sell( price, count )
                 );
-
             } else if ( false === sell && true === buy ) {
                 tradeActions.push(
                     trader.buy( price, count )

@@ -50,8 +50,8 @@ export function MultiBookTh( data: Map<TradeName, Exchange> ): THAction {
 
     let count: number = calCount( askCount, bidCount, askCash, askPrice, bidCoin );
     // TODO: safe
-    if ( count > 0.002 ) {
-        count = 0.002;
+    if ( count > 0.003 ) {
+        count = 0.003;
     }
 
     if ( count <= 0 ) {

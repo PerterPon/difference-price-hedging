@@ -12,7 +12,7 @@ import { BitfinexPricer } from 'pricer/bitfinex-pricer';
 import { HuobiPricer } from 'pricer/huobi-pricer';
 
 import { Trader } from 'trader/trader';
-import { BianTrader } from 'trader/bian-trader';
+import { BinanceTrader } from 'trader/binance-trader';
 import { BitfinexTrader } from 'trader/bitfinex-trader';
 import { HuobiTrader } from 'trader/huobi-trader';
 
@@ -120,7 +120,7 @@ export class AIO {
     await bfxTrader.init();
     this.traders.set( BFX_TRADE, bfxTrader );
 
-    const bianTrander: Trader = new BianTrader();
+    const bianTrander: Trader = new BinanceTrader();
     bianTrander.name = BIAN_TRADE;
     await bianTrander.init();
     this.traders.set( BIAN_TRADE, bianTrander );

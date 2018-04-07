@@ -35,7 +35,7 @@ const [ processName, targetName, symbol ] = process.argv;
 // 当前搜索的币种
 global.symbol = symbol as Coin;
 // 盈利倍数，只有超过这个数值，才会触发action
-global.thBuffer = 0.1;
+global.thBuffer = 0.2;
 
 console.log( '[INDEX] loading api keys...' );
 const keyPath: string = path.join( __dirname, '../keys-conf.json' );
@@ -49,7 +49,6 @@ async function start(): Promise<void> {
   } catch ( e ) {
     console.log( e );
   }
-  
 }
 
 start();
