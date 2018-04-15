@@ -4,68 +4,51 @@
   Create: Sat Mar 17 2018 12:55:30 GMT+0800 (CST)
 */
 
-"use strict";
-
+import * as _ from 'lodash';
 import { HuobiConnection } from 'connections/huobi-connection';
-import { IPricer } from './pricer';
 
+import { Pricer } from './pricer';
 import { OrderBoook } from 'order-books/order-book';
 import { ConnectionEvents } from 'core/enums/connection'
 import { Coin } from 'core/enums/util';
 
 import { BookData, TOrderBook, TOrderBookContent, TOrderBookItem } from 'exchange-types';
 
-export class HuobiPricer implements IPricer {
+export class HuobiPricer extends Pricer {
 
-    public name: string;
     private connection: HuobiConnection;
-    private symbol: string;
 
-    private orderBook: OrderBoook;
-
-    private bookDataDone:( data: BookData )=>void;
-
-    private currentPrice: BookData = {} as BookData;
-
-    constructor() {
+    protected getCurrentPricerSymbol(): string {
         const coin: Coin = global.symbol;
-        this.symbol = `${ coin.toLowerCase() }usdt`;
-        this.connection = new HuobiConnection( this.symbol );
+        const currentSymbol: string = `${ coin.toLowerCase() }usdt`;
+        return currentSymbol;
     }
-
+    
     public async init(): Promise<void> {
+        this.connection = new HuobiConnection( this.currentSymbol );
         await this.connection.connect();
         this.connection.on( ConnectionEvents.BOOK, this.onBookData.bind( this ) );
-    }
-
-    public async getBook(): Promise<BookData> {
-
-        return new Promise<BookData>( ( resolve, reject ) => {
-            this.bookDataDone = resolve;
-        } );
-
     }
 
     private onBookData( data ): void {
         const { tick } = data;
         const { bids, asks } = tick;
-        const askPrice = asks[ 0 ][ 0 ];
-        const askCount = asks[ 0 ][ 1 ];
-        const bidPrice = bids[ 0 ][ 0 ];
-        const bidCount = bids[ 0 ][ 1 ];
-        const { currentPrice } = this;
-        if (
-          askPrice === this.currentPrice.askPrice &&
-          askCount === this.currentPrice.askCount &&
-          bidPrice === this.currentPrice.bidPrice &&
-          bidCount === this.currentPrice.bidCount
-        ) {
-          return;
+
+        if ( true === _.isArray( asks ) ) {
+            for( let i = 0; i < asks.length; i ++ ) {
+                const ask = asks[ i ];
+                const [ price, amount ] = ask;
+                this.updateAsk( +price, +amount );
+            }
         }
-        const book: BookData = {
-            askPrice, askCount, bidPrice, bidCount
-        };
-        this.bookDataDone( book );
+
+        if ( true === _.isArray( bids ) ) {
+            for( let i = 0; i < bids.length; i ++ ) {
+                const bid = bids[ i ];
+                const [ price, amount ] = bid;
+                this.updateBid( +price, +amount );
+            }
+        }
     }
 
 }

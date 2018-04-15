@@ -5,34 +5,21 @@
 */
 
 import * as _ from 'lodash';
-import * as BFX from 'bitfinex-api-node';
-import { reportError } from 'repotor';
 import { Coin } from 'core/enums/util';
 import { BFXConnection } from 'connections/bfx-connnection';
-
-import { IPricer } from './pricer';
-import { BookData } from 'exchange-types';
+import { Pricer } from './pricer';
 
 const CoinMap = {
     'QTUM': 'QTM'
 };
 
-export class BFXPricer implements IPricer {
+export class BFXPricer extends Pricer {
 
-    public name: string;
-
-    private tickerChannelId: string;
-
-    private bookDataDone: ( BookData ) => void;
-    private tickDataDone: ( TickData ) => void;
-
-    private currentBookData: BookData = {} as BookData;
-    private currentSymbol: string;
-
-    constructor () {
+    protected getCurrentPricerSymbol(): string {
         const coin: Coin = global.symbol;
         const mappedCoin: string = CoinMap[ coin.toUpperCase() ] || coin;
-        this.currentSymbol = `t${mappedCoin.toUpperCase()}USD`;
+        const currentSymbol: string = `t${ mappedCoin.toUpperCase() }USD`;
+        return currentSymbol;
     }
 
     public async init(): Promise<void> {
@@ -42,32 +29,28 @@ export class BFXPricer implements IPricer {
         ws.onOrderBook( { symbol: this.currentSymbol }, this.onBookData.bind( this ) );
     }
 
+    // data format
+    // [ [
+    //   price, orders, amount
+    // ] ]
     private onBookData( data ): void {
-        if ( false === _.isArray( data ) || 2 > data.length ) {
-            return;
-        }
-        const bid = data[ 0 ];
-        const ask = data[ data.length - 1 ];
-
-        const [ bidPrice, bidOrders, bidCount ] = bid || [] as any;
-        const [ askPrice, askOrders, askCount ] = ask || [] as any;
-        if ( [ bidPrice, bidCount, askPrice, askCount ].includes( void( 0 ) ) ) {
+        if ( false === _.isArray( data ) ) {
             return;
         }
 
-        const bookData: BookData = {
-            askPrice: askPrice,
-            askCount: Math.abs( askCount ),
-            bidPrice: bidPrice,
-            bidCount: Math.abs( bidCount )
-        };
-        this.bookDataDone( bookData );
-    }
+        for( let i = 0; i < data.length; i ++ ) {
+            const item = data[ i ];
+            const [ price, orders, amount ] = item;
 
-    public async getBook(): Promise<BookData> {
-        return new Promise<BookData>( ( resolve, reject ) => {
-            this.bookDataDone = resolve;
-        } );
+            let count: number = orders && Math.abs( amount );
+
+            if ( amount > 0 ) {                
+                this.updateBid( price, count );
+            } else if ( amount < 0 ) {
+                this.updateAsk( price, count );
+            }
+        }
+
     }
 
 }

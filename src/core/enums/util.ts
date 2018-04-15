@@ -10,3 +10,8 @@ export enum ActionType {
     BUY
 }
 
+export enum BookType {
+    BID,
+    ASK
+}
+

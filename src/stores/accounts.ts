@@ -26,7 +26,7 @@ export async function getAccountByName( name:string ):Promise<Array<Account>> {
     WHERE
         name = ?
     ORDER BY
-        gmt_create
+        gmt_create DESC
     LIMIT 1;
     `;
     const where: Array<any> = [ name ];

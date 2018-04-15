@@ -5,7 +5,7 @@
   Create: Fri Mar 09 2018 07:13:43 GMT+0800 (CST)
 */
 
-import { IPricer } from 'pricer/pricer';
+import { Pricer } from 'pricer/pricer';
 import { BianPricer } from 'pricer/bian-pricer';
 import { BFXPricer } from 'pricer/bfx-pricer';
 import { BitfinexPricer } from 'pricer/bitfinex-pricer';
@@ -20,7 +20,6 @@ import { BFXConnection } from 'connections/bfx-connnection';
 import { BinanceConnection } from 'connections/binance-connection';
 
 import { Compare } from './compare';
-// import { Excutor } from './excutor';
 import { BalanceExcutor } from 'excutor/balance-excutor';
 import { init as InitRepotor, reportTotal, reportError, reportLatestPrice } from 'repotor';
 
@@ -45,7 +44,7 @@ const PricersMap = {
 };
 
 type Traders = Map<TradeName, Trader>;
-type Pricers = Map<TradeName, IPricer>;
+type Pricers = Map<TradeName, Pricer>;
 
 export class AIO {
 
@@ -98,28 +97,30 @@ export class AIO {
     this.compare = new Compare();
     const { traders } = this;
     // while( true ) {
-      try {
-        // 获得操作action
-        const action: THAction = await this.compare.getAction();
-        // 执行操作
-        const excutor: BalanceExcutor = new BalanceExcutor();
-        await excutor.excute( action, traders );
-        // 汇报
-        reportTotal( traders );
-      } catch( e ) {
-        reportError( e );
-      }
+      // try {
+      //   // 获得操作action
+      //   const action: THAction = await this.compare.getAction();
+      //   // 执行操作
+      //   const excutor: BalanceExcutor = new BalanceExcutor();
+      //   await excutor.excute( action, traders );
+      //   // 汇报
+      //   reportTotal( traders );
+      // } catch( e ) {
+      //   reportError( e );
+      // }
     // }
   }
 
   private async initTrader(): Promise<void> {
     log.log( 'init trader ...' );
 
+    log.log( 'initing bfx trader...' );
     const bfxTrader: Trader = new BitfinexTrader();
     bfxTrader.name = BFX_TRADE;
     await bfxTrader.init();
     this.traders.set( BFX_TRADE, bfxTrader );
 
+    log.log( 'initing bian trader...' );
     const bianTrander: Trader = new BinanceTrader();
     bianTrander.name = BIAN_TRADE;
     await bianTrander.init();
@@ -140,7 +141,7 @@ export class AIO {
 
   private async subscribeBookData( traderName: string ): Promise<void> {
 
-    const pricer: IPricer = new PricersMap[ traderName ]();
+    const pricer: Pricer = new PricersMap[ traderName ]();
     pricer.name = traderName;
     this.pricers.set( traderName, pricer );
     await pricer.init();
@@ -148,6 +149,7 @@ export class AIO {
     while( true ) {
       try {
         const bookData: BookData = await pricer.getBook();
+        console.log( '---', traderName, bookData );
         const trader: Trader = this.traders.get( traderName );
         const usage: boolean = this.checkPriceAndCountUsage( traderName, bookData );
         if ( false === usage ) {

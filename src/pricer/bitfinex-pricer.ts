@@ -4,7 +4,7 @@
   Create: Sat Mar 10 2018 08:01:44 GMT+0800 (CST)
 */
 
-import { IPricer } from './pricer';
+// import { IPricer } from './pricer';
 import * as _ from 'lodash';
 import { BitfinexConnection, ChannelId } from 'connections/bitfinex-connection';
 import { ConnectionEvents } from 'core/enums/connection';
@@ -50,7 +50,7 @@ const CoinMap = {
     'QTUM' : 'QTM'
 };
 
-export class BitfinexPricer implements IPricer {
+export class BitfinexPricer {
 
     public name: string;
     private connection:BitfinexConnection;
@@ -77,6 +77,7 @@ export class BitfinexPricer implements IPricer {
     }
 
     private onBookData( data: BookUpdateData ): void {
+
         const [ chanId, price, count, amount ] = data;
         if ( true === _.isArray( price ) ) {
             return;
