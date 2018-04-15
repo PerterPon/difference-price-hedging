@@ -22,7 +22,7 @@ export class BitfinexTrader extends Trader {
 
     public feeds: Feeds = {
         buy: 0.001,
-        sell: 0.002
+        sell: 0.001
     };
 
     private ws: any;

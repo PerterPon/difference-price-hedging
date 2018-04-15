@@ -56,8 +56,8 @@ const log = Log( 'BINANCE TRADER' );
 export class BinanceTrader extends Trader {
 
     public feeds: Feeds = {
-        buy: 0.001,
-        sell: 0.001
+        buy: 0.001 * 0.5,
+        sell: 0.001 * 0.5
     };
 
     private orderMap: Map<number, BinanceOrderContent> = new Map();

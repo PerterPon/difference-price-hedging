@@ -97,17 +97,17 @@ export class AIO {
     this.compare = new Compare();
     const { traders } = this;
     // while( true ) {
-      // try {
-      //   // 获得操作action
-      //   const action: THAction = await this.compare.getAction();
-      //   // 执行操作
-      //   const excutor: BalanceExcutor = new BalanceExcutor();
-      //   await excutor.excute( action, traders );
-      //   // 汇报
-      //   reportTotal( traders );
-      // } catch( e ) {
-      //   reportError( e );
-      // }
+      try {
+        // 获得操作action
+        const action: THAction = await this.compare.getAction();
+        // 执行操作
+        const excutor: BalanceExcutor = new BalanceExcutor();
+        await excutor.excute( action, traders );
+        // 汇报
+        reportTotal( traders );
+      } catch( e ) {
+        reportError( e );
+      }
     // }
   }
 
@@ -149,7 +149,6 @@ export class AIO {
     while( true ) {
       try {
         const bookData: BookData = await pricer.getBook();
-        console.log( '---', traderName, bookData );
         const trader: Trader = this.traders.get( traderName );
         const usage: boolean = this.checkPriceAndCountUsage( traderName, bookData );
         if ( false === usage ) {

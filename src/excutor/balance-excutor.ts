@@ -47,7 +47,7 @@ export class BalanceExcutor {
         
         for( let i = 0; i < result.length; i ++ ) {
             const actionId: number = result[ i ];
-            const { type, trader } = actionIndex.get( actionId );
+            const { type, trader } = actionIndex.get( i );
             if ( ActionType.SELL === type ) {
                 completed.push(
                     trader.whenCompleteSell( actionId )

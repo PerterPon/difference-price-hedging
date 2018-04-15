@@ -52,6 +52,11 @@ export function MultiBookTh( data: Map<TradeName, Exchange> ): THAction {
     // TODO: safe
     if ( count > 0.003 ) {
         count = 0.003;
+    }   
+
+    // minimum size
+    if ( count < 0.002 ) {
+        return null;
     }
 
     if ( count <= 0 ) {
@@ -126,6 +131,10 @@ function calCount( askCount: number, bidCount: number, askCash: number, askPrice
 }
 
 function calProfit( bidPrice: number, askPrice: number, bidFeed: number, askFeed: number ): number {
+
+    if( bidPrice <= askPrice ) {
+        return 0;
+    }
 
     const totalFeeds = ( bidPrice * bidFeed ) + ( askPrice * askFeed );
     const dis = bidPrice - askPrice;
