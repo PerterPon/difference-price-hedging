@@ -11,7 +11,11 @@ import { ActionType, Coin, Exchanges } from 'core/enums/util';
 import { THAction } from 'trade-types';
 import { reportAction } from 'repotor';
 
+import Log from 'core/log';
+
 import * as ProfitStore from 'stores/profits';
+
+const log = Log( 'BALANCE_EXCUTOR' );
 
 export class BalanceExcutor {
 
@@ -39,7 +43,7 @@ export class BalanceExcutor {
                 );
                 const { feeds } = trader;
                 feed += price * count * feeds.sell;
-                sellprice = price;
+                sellprice = price * count;
 
             } else if ( false === sell && true === buy ) {
                 actionIndex.set( tradeActions.length, {
@@ -51,11 +55,12 @@ export class BalanceExcutor {
                 );
                 const { feeds } = trader;
                 feed += price * count * feeds.buy;
-                buyPrice = price;
+                buyPrice = price * count;
             }
         }
 
         const result: Array<number> = await Promise.all( tradeActions );
+        log.debug( 'success sending all actions!' );
         const completed: Array<Promise<void>> = [];
         let buyActionId: number;
         let sellActionId: number;
@@ -79,12 +84,10 @@ export class BalanceExcutor {
         await Promise.all( completed );
 
         const coin: Coin = global.symbol;
-        const profit: number = sellprice - buyPrice - feed;
+        const profit: number = sellprice *  - buyPrice - feed;
+        log.debug( 'all actions done success!' );
 
         await ProfitStore.addProfits( profit, buyActionId, sellActionId, coin, feed );
-
-        console.log( 'all trade done' );
-        console.log( result );
 
         reportAction( actions );
     }

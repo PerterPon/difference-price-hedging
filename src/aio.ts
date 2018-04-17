@@ -109,7 +109,7 @@ export class AIO {
     log.log( 'init compare ...' );
     this.compare = new Compare();
     const { traders } = this;
-    // while( true ) {
+    while( true ) {
       try {
         // 获得操作action
         const action: THAction = await this.compare.getAction();
@@ -121,7 +121,7 @@ export class AIO {
       } catch( e ) {
         reportError( e );
       }
-    // }
+    }
   }
 
   private async initTrader(): Promise<void> {
