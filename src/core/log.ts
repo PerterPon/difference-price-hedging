@@ -14,7 +14,7 @@ function getNowTime(): string {
 function collectionLog( moduleName: string, message: string ): string {
 
     const nowTime: string = getNowTime();
-    return `${ nowTime } [${ moduleName }] ${ message }`;
+    return `${ nowTime } [${ moduleName.yellow }] ${ message }`;
 
 }
 
@@ -26,20 +26,20 @@ export default function ( moduleName ){
             console.log( log );
         },
         success: function( message: string ): void {
-            const log: string = collectionLog( moduleName, message );
-            console.log( log.green );
+            const log: string = collectionLog( moduleName, message.green );
+            console.log( log );
         },
         error: function ( message: string ): void {
-            const log: string = collectionLog( moduleName, message );
-            console.error( log.red );
+            const log: string = collectionLog( moduleName, message.red );
+            console.error( log );
         },
         warn: function ( message: string ): void {
-            const log: string = collectionLog( moduleName, message );
+            const log: string = collectionLog( moduleName, message.yellow );
             console.warn( log.yellow );
         },
         debug: function ( message: string ): void {
-            const log: string = collectionLog( moduleName, message );
-            console.debug( log.blue );
+            const log: string = collectionLog( moduleName, message.blue );
+            console.debug( log );
         },
         assemblyLog( moduleName: string, content: string ): string {
             return `${collectionLog( moduleName, content )}\n`;
