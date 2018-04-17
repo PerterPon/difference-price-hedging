@@ -115,7 +115,7 @@ export class AIO {
         const action: THAction = await this.compare.getAction();
         // 执行操作
         const excutor: BalanceExcutor = new BalanceExcutor();
-        // await excutor.excute( action, traders );
+        await excutor.excute( action, traders );
         // 汇报
         reportTotal( traders );
       } catch( e ) {
