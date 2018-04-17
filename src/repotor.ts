@@ -134,7 +134,13 @@ export function reportFeeds(  totalFeeds: number, buyFeeds: number, sellFeeds: n
 }
 
 export function reportLatestProfit( dis: number, feed: number, profit: number ): void {
-    const content: string = `profit: [${ profit}], distance: [${dis}], feed: [${feed}]`;
+    let displayProfit: string = `${ profit }`;
+    if ( profit > 0 ) {
+        displayProfit = displayProfit.green;
+    } else {
+        displayProfit = displayProfit.red;
+    }
+    const content: string = `profit: [${ displayProfit }], distance: [${dis}], feed: [${feed}]`;
     const profitContent: string = log.assemblyLog( 'profit', content );
     profitWriter.updateContent( profitContent );
 }

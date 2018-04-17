@@ -19,7 +19,7 @@ function collectionLog( moduleName: string, message: string ): string {
 }
 
 export default function ( moduleName ){
-    
+
     return {
         log: function ( message: string ): void {
             const log: string = collectionLog( moduleName, message );
