@@ -180,7 +180,15 @@ export class CCXTTrader {
         }
 
         const { ccxtId } = content;
-        this.completeAction( actionId );
+        const symbol: string = this.getSymbol();
+        for( let i = 0; i < 20; i ++ ) {
+            await sleep( 3 * 1000 );
+            const result: OrderResult = await exchange.fetchOrder( ccxtId, symbol );
+            if ( result.amount === result.filled && OrderStatus.CLOSED === result.status ) {
+                this.completeAction( actionId );
+                break;
+            }
+        }
 
     }
 
