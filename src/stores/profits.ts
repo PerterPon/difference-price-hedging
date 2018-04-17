@@ -13,7 +13,7 @@ const db: Db = Db.getInstance();
 export async function addProfits( profit: number, buyActionId: number, sellActionId: number, coin: Coin, feed: number ): Promise<number> {
 
     const sql: string = `
-    INSERT INTO ool(
+    INSERT INTO profits(
         profit,
         buy_action_id,
         sell_action_id,
