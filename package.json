@@ -10,7 +10,9 @@
         "neo": "tsc && cd build && NODE_PATH=. node index neo",
         "qtum": "tsc && cd build && NODE_PATH=. node index qtum",
         "test:connection": "tsc && cd build && NODE_PATH=. node test-connection",
-        "test:trade": "tsc && cd build && NODE_PATH=. node test-trader"
+        "test:trade": "tsc && cd build && NODE_PATH=. node test-trader",
+        "test:ccxt" : "tsc && cd build && NODE_PATH=. node test-ccxt",
+        "test:ccxt-trader": "tsc && cd build && NODE_PATH=. node test-ccxt-trader"
     },
     "dependencies": {
         "websocket": "1.0.25",
@@ -23,7 +25,9 @@
         "binance": "1.3.3",
         "bitfinex-api-node": "2.0.0-beta",
         "fresh-mysql": "*",
-        "node-binance-api": "0.4.26"
+        "node-binance-api": "0.4.26",
+        "ccxt": "1.12.170",
+        "colors" : "1.2.1"
     },
     "engines": {
         "node": ">=8.0.0"

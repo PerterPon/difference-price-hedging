@@ -1,7 +1,7 @@
 
 declare module "trade-types" {
 
-    export type TradeName = string;
+    import { Exchanges } from 'core/enums/util';
 
     export type Trade = {
         feeds: Feeds;
@@ -27,6 +27,6 @@ declare module "trade-types" {
 
     export type TradeId = number;
 
-    export type THAction = Map<TradeName, TradeAction>;
+    export type THAction = Map<Exchanges, TradeAction>;
 
 }

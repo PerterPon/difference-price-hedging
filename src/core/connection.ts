@@ -76,7 +76,7 @@ export class Connection extends EventEmitter {
     }
 
     private onConnect( connection: connection ): void {
-        log.log( `[${ this.name}] connect success!` );
+        log.success( `[${ this.name}] connect success!` );
         this.connection = connection;
         connection.on( 'message', this.onMessage.bind( this ) );
         connection.on( 'error', this.onError.bind( this ) );

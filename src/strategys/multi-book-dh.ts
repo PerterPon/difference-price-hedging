@@ -7,17 +7,18 @@
 import * as Util from 'core/util';
 import { reportNoneLeft, reportLatestProfit } from 'repotor';
 
+import { Exchanges } from 'core/enums/util';
 import { BookData, Exchange } from 'exchange-types';
-import { Trade, Feeds, TradeAction, THAction, Balance, TradeName } from 'trade-types';
+import { Trade, Feeds, TradeAction, THAction, Balance } from 'trade-types';
 
 // const TH_BUFFER: number = global;
 
 type BestBidAndAskPrice = {
-    bid: TradeName,
-    ask: TradeName
+    bid: Exchanges,
+    ask: Exchanges
 };
 
-export function MultiBookTh( data: Map<TradeName, Exchange> ): THAction {
+export function MultiBookTh( data: Map<Exchanges, Exchange> ): THAction {
 
     const bestBA: BestBidAndAskPrice = getBestBidAndAskTrade( data );
     if ( null === bestBA ) {
@@ -83,9 +84,9 @@ export function MultiBookTh( data: Map<TradeName, Exchange> ): THAction {
     return action;
 }
 
-function getBestBidAndAskTrade( data: Map<TradeName, Exchange> ): { ask: TradeName, bid: TradeName } {
-    const asks: Map<number, TradeName> = new Map();
-    const bids: Map<number, TradeName> = new Map();
+function getBestBidAndAskTrade( data: Map<Exchanges, Exchange> ): { ask: Exchanges, bid: Exchanges } {
+    const asks: Map<number, Exchanges> = new Map();
+    const bids: Map<number, Exchanges> = new Map();
 
     for ( let [ name, exchange ] of data ) {
         const { book, feeds, balance } = exchange;
@@ -112,8 +113,8 @@ function getBestBidAndAskTrade( data: Map<TradeName, Exchange> ): { ask: TradeNa
     const bestBidPrice: number = Math.max.apply( null, bidPrices );
     const bestAskPrice: number = Math.min.apply( null, askPrices );
 
-    const bestBidTradeName: TradeName = bids.get( bestBidPrice );
-    const bestAskTradeName: TradeName = asks.get( bestAskPrice );
+    const bestBidTradeName: Exchanges = bids.get( bestBidPrice );
+    const bestAskTradeName: Exchanges = asks.get( bestAskPrice );
 
     if ( bestAskTradeName === bestBidTradeName ) {
         return null;

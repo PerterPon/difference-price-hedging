@@ -10,23 +10,26 @@ import { ActionType, Coin } from 'core/enums/util';
 
 const db: Db = Db.getInstance();
 
-export async function addProfits( profit: number, buyActionId: number, sellActionId: number, coin: Coin ): Promise<number> {
+export async function addProfits( profit: number, buyActionId: number, sellActionId: number, coin: Coin, feed: number ): Promise<number> {
 
     const sql: string = `
     INSERT INTO ool(
         profit,
         buy_action_id,
         sell_action_id,
-        coin
+        coin,
+        feed
     )
     VALUE (
         ?,
         ?,
         ?,
         ?,
+        ?
     );
     `;
-    const where: Array<any> = [ profit, buyActionId, sellActionId, coin ];
+
+    const where: Array<any> = [ profit, buyActionId, sellActionId, coin, feed ];
     const data = await db.query( sql, where );
     return data.insertId;
 

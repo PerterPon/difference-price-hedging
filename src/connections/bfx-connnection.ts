@@ -22,11 +22,11 @@ export class BFXConnection {
     public ws = null;
     private initDone = null;
 
-    public async init( apiKey: string, apiSecret: string ): Promise<void> {
+    public async init(): Promise<void> {
 
         const bfx = new BFX( {
-            apiKey: apiKey,
-            apiSecret: apiSecret,
+            // apiKey: apiKey,
+            // apiSecret: apiSecret,
             ws: {
                 autoReconnect: true,
                 seqAudit: false,
@@ -37,20 +37,17 @@ export class BFXConnection {
             // manageOrderBooks: true,  // tell the ws client to maintain full sorted OBs
             // transform: false          // auto-transform array OBs to OrderBook objects
         } );
-        // const ws = bfx.ws( 2 );
         this.ws = ws;
 
+        let done: Function;
         ws.on( 'error', reportError );
         ws.on( 'open', () => {
-            ws.auth();
-        } );
-        ws.once( 'auth', () => {
-            this.initDone();
+            done();
         } );
         ws.open();
 
         return new Promise<void>( ( resolve, reject ) => {
-            this.initDone = resolve;
+            done = resolve;
         } );
     }
 

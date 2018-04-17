@@ -10,11 +10,12 @@ import * as _ from 'lodash';
 import { BookData } from 'exchange-types';
 import { OrderBoook } from 'order-books/order-book';
 
+import { Exchanges } from 'core/enums/util';
 import { BookType } from 'core/enums/util';
 
 export abstract class Pricer {
 
-    public name: string;
+    public name: Exchanges;
 
     protected orderBook: OrderBoook = new OrderBoook();
     protected currentBook: BookData = {} as BookData;
@@ -68,7 +69,6 @@ export abstract class Pricer {
                 this.bookDataDone( Object.assign( {}, firstBook ) );
             }
         }
-
 
     }
 

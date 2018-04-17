@@ -7,7 +7,8 @@
 import { Trader } from 'trader/trader';
 import { reportFeeds, reportAction } from 'repotor';
 
-import { THAction, TradeName, TradeAction, Feeds } from 'trade-types';
+import { Exchanges } from 'core/enums/util';
+import { THAction, TradeAction, Feeds } from 'trade-types';
 
 let totalFeeds: number = 0;
 let buyFeeds: number = 0;
@@ -24,7 +25,7 @@ export class Excutor {
         return Excutor.instance;
     }
 
-    public async excute( actions: THAction, traders: Map<TradeName, Trader> ): Promise<void> {
+    public async excute( actions: THAction, traders: Map<Exchanges, Trader> ): Promise<void> {
 
         for ( let [ name, action ] of actions ) {
 

@@ -5,6 +5,7 @@
 */
 
 import * as moment from "moment";
+import 'colors';
 
 function getNowTime(): string {
     return moment().format( 'YYYY-MM-DD HH:mm:ss' );
@@ -24,17 +25,21 @@ export default function ( moduleName ){
             const log: string = collectionLog( moduleName, message );
             console.log( log );
         },
+        success: function( message: string ): void {
+            const log: string = collectionLog( moduleName, message );
+            console.log( log.green );
+        },
         error: function ( message: string ): void {
             const log: string = collectionLog( moduleName, message );
-            console.error( log );
+            console.error( log.red );
         },
         warn: function ( message: string ): void {
             const log: string = collectionLog( moduleName, message );
-            console.warn( log );
+            console.warn( log.yellow );
         },
         debug: function ( message: string ): void {
             const log: string = collectionLog( moduleName, message );
-            console.debug( log );
+            console.debug( log.blue );
         },
         assemblyLog( moduleName: string, content: string ): string {
             return `${collectionLog( moduleName, content )}\n`;

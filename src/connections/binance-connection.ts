@@ -20,11 +20,11 @@ export class BinanceConnection {
     public binanceRest;
     public binanceWS;
 
-    public async init( apiKey: string, apiSecret: string ): Promise<void> {
+    public async init(): Promise<void> {
 
         const binanceRest = new Binance.BinanceRest( {
-            key: apiKey, // Get this from your account on binance.com
-            secret: apiSecret, // Same for this
+            // key: apiKey, // Get this from your account on binance.com
+            // secret: apiSecret, // Same for this
             timeout: 15000, // Optional, defaults to 15000, is the request time out in milliseconds
             recvWindow: 10000, // Optional, defaults to 5000, increase if you're getting timestamp errors
             disableBeautification: false,

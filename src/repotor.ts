@@ -5,10 +5,12 @@
   Create: Wed Mar 14 2018 12:53:21 GMT+0800 (CST)
 */
 
-import { Trader } from 'trader/trader';
-import { TradeName, Balance, THAction } from 'trade-types';
+// import { Trader } from 'trader/trader';
+import { CCXTTrader } from 'trader/ccxt-trader';
+import { Balance, THAction } from 'trade-types';
 import { BookData } from 'exchange-types';
 import { Writer } from 'core/writer';
+import { Exchanges } from 'core/enums/util';
 
 import { Coin, ActionType } from 'core/enums/util';
 
@@ -44,7 +46,7 @@ export function init() {
     errorWriter = new Writer( 'error' );
 }
 
-export function reportTotal( traders:Map<TradeName, Trader> ): void {
+export function reportTotal( traders: Map<Exchanges, CCXTTrader> ): void {
 
     let totalCash: number = 0;
     let totalCoin: number = 0;
@@ -81,7 +83,7 @@ export function reportError( e: Error ): void {
     errorWriter.updateContent( errorContent );
 }
 
-export function reportNoneLeft( aTradeName: TradeName, aBalance: Balance, bTradeName: TradeName, bBalance: Balance ): void {
+export function reportNoneLeft( aTradeName: Exchanges, aBalance: Balance, bTradeName: Exchanges, bBalance: Balance ): void {
 
     const content: string = `
     || trade: [${ aTradeName }], cash: [${ aBalance.cash }], coin: [${ aBalance.coin }]
@@ -92,7 +94,7 @@ export function reportNoneLeft( aTradeName: TradeName, aBalance: Balance, bTrade
 }
 
 const lastestPriceMap = {};
-export function reportLatestPrice( name: TradeName, data: BookData ): void {
+export function reportLatestPrice( name: Exchanges, data: BookData ): void {
     lastestPriceMap[ name ] = data;
     let content: string = '\n';
 

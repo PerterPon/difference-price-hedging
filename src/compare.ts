@@ -7,15 +7,16 @@
 import { MultiBookTh } from './strategys/multi-book-dh';
 import * as _ from 'lodash';
 
+import { Exchanges } from 'core/enums/util';
 import { BookData, Exchange } from 'exchange-types';
-import { Feeds, THAction, TradeAction, Balance, TradeName } from 'trade-types';
+import { Feeds, THAction, TradeAction, Balance } from 'trade-types';
 
 export class Compare {
 
     private actionDone: ( action: THAction ) => void;
-    private pricePool: Map<TradeName, Exchange> = new Map();
+    private pricePool: Map<Exchanges, Exchange> = new Map();
 
-    public update( name: TradeName, book: BookData, feeds: Feeds, balance: Balance ): void {
+    public update( name: Exchanges, book: BookData, feeds: Feeds, balance: Balance ): void {
 
         let excuableCount: number = 0;
 

@@ -11,10 +11,13 @@ import { BFXPricer } from 'pricer/bfx-pricer';
 import { BitfinexPricer } from 'pricer/bitfinex-pricer';
 import { HuobiPricer } from 'pricer/huobi-pricer';
 
-import { Trader } from 'trader/trader';
-import { BinanceTrader } from 'trader/binance-trader';
-import { BitfinexTrader } from 'trader/bitfinex-trader';
-import { HuobiTrader } from 'trader/huobi-trader';
+// import { Trader } from 'trader/trader';
+// import { BinanceTrader } from 'trader/binance-trader';
+// import { BitfinexTrader } from 'trader/bitfinex-trader';
+// import { HuobiTrader } from 'trader/huobi-trader';
+
+import { CCXTTrader } from 'trader/ccxt-trader';
+import { CCXTConnection } from 'connections/ccxt-connections';
 
 import { BFXConnection } from 'connections/bfx-connnection';
 import { BinanceConnection } from 'connections/binance-connection';
@@ -26,25 +29,27 @@ import { init as InitRepotor, reportTotal, reportError, reportLatestPrice } from
 import Log from 'core/log';
 import { Writer } from 'core/writer';
 import { Db } from 'core/db';
+import { Exchanges } from 'core/enums/util';
 
-import { THAction, TradeAction, TradeName, Trade } from 'trade-types';
+import { THAction, TradeAction, Trade } from 'trade-types';
 import { BookData } from 'exchange-types';
 import { Coin } from 'core/enums/util';
+import { exchanges, ExchangeNotAvailable, Exchange } from 'ccxt';
 
 const log = Log( 'AIO' );
 
-const BFX_TRADE  = 'bitfinex';
-const BIAN_TRADE = 'binance';
-const HUOBI_TRADE = 'huobi';
+// const BFX_TRADE  = 'bitfinex';
+// const BIAN_TRADE = 'binance';
+// const HUOBI_TRADE = 'huobi';
 
 const PricersMap = {
-  [ BFX_TRADE ]  : BFXPricer,
-  [ BIAN_TRADE ] : BianPricer,
-  [ HUOBI_TRADE ]: HuobiPricer
+  [ Exchanges.BITFINEX ]  : BFXPricer,
+  [ Exchanges.BINANCE ]   : BianPricer,
+  [ Exchanges.HUOBI_PRO ] : HuobiPricer
 };
 
-type Traders = Map<TradeName, Trader>;
-type Pricers = Map<TradeName, Pricer>;
+type Traders = Map<Exchanges, CCXTTrader>;
+type Pricers = Map<Exchanges, Pricer>;
 
 export class AIO {
 
@@ -63,25 +68,33 @@ export class AIO {
     this.initCompare();
     await this.initPricer();
 
-    log.log( 'all module init success!' );
-    log.log( 'listening book data...' );
+    log.success( 'all module init success!' );
+    log.success( 'listening book data...' );
   }
 
   private async initConnetions(): Promise<void> {
     log.log( 'initing connetions...' );
 
+    // pricer ws connections
     const { apiKeys } = global;
     log.log( 'initing bfx connection...' );
-    const bfxKey = apiKeys[ BFX_TRADE ];
     const bfx: BFXConnection = BFXConnection.getInstance();
-    await bfx.init( bfxKey.key, bfxKey.secret );
+    await bfx.init();
 
     log.log( 'initing binance connection....' );
-    const binanceKey = apiKeys[ BIAN_TRADE ];
     const bian: BinanceConnection = BinanceConnection.getInstance();
-    await bian.init( binanceKey.key, binanceKey.secret );
+    await bian.init();
 
-    log.log( 'connection init success!' );
+    // trader connections
+    const ccxtConnection: CCXTConnection = CCXTConnection.getInstance();
+    for( let key in Exchanges ) {
+      const exchange: Exchanges = Exchanges[ key ] as Exchanges;
+      const apiKey = apiKeys[ exchange ];
+      log.log( `initing ccxt connections: [${ exchange }]` );
+      await ccxtConnection.init( exchange, apiKey.key, apiKey.secret );
+    }
+
+    log.success( 'connection init success!' );
   }
 
   private initCore(): void {
@@ -89,7 +102,7 @@ export class AIO {
     const db: Db = Db.getInstance();
     db.init();
 
-    log.log( 'core init success!' );
+    log.success( 'core init success!' );
   }
 
   private async initCompare(): Promise<void> {
@@ -102,7 +115,7 @@ export class AIO {
         const action: THAction = await this.compare.getAction();
         // 执行操作
         const excutor: BalanceExcutor = new BalanceExcutor();
-        await excutor.excute( action, traders );
+        // await excutor.excute( action, traders );
         // 汇报
         reportTotal( traders );
       } catch( e ) {
@@ -114,32 +127,30 @@ export class AIO {
   private async initTrader(): Promise<void> {
     log.log( 'init trader ...' );
 
-    log.log( 'initing bfx trader...' );
-    const bfxTrader: Trader = new BitfinexTrader();
-    bfxTrader.name = BFX_TRADE;
-    await bfxTrader.init();
-    this.traders.set( BFX_TRADE, bfxTrader );
+    for( let key in Exchanges ) {
+      const exchange: Exchanges = Exchanges[ key ] as Exchanges;
+      const trader: CCXTTrader = new CCXTTrader();
+      log.log( `initing trader: [${ exchange }]` );
+      await trader.init( exchange );
+      this.traders.set( exchange, trader );
+    }
 
-    log.log( 'initing bian trader...' );
-    const bianTrander: Trader = new BinanceTrader();
-    bianTrander.name = BIAN_TRADE;
-    await bianTrander.init();
-    this.traders.set( BIAN_TRADE, bianTrander );
-
-    log.log( 'trader init success!' );
+    log.success( 'trader init success!' );
   }
 
   private async initPricer(): Promise<void> {
     log.log( 'init pricer ...' );
 
-    this.subscribeBookData( BFX_TRADE );
-    this.subscribeBookData( BIAN_TRADE );
-    // this.subscribeBookData( HUOBI_TRADE );
+    for ( let key in Exchanges ) {
+      const exchange: Exchanges = Exchanges[ key ] as Exchanges;
+      log.log( `initing pricer: [${ exchange }]` );
+      this.subscribeBookData( exchange );
+    }
 
-    log.log( 'pricer init success!' );
+    log.success( 'pricer init success!' );
   }
 
-  private async subscribeBookData( traderName: string ): Promise<void> {
+  private async subscribeBookData( traderName: Exchanges ): Promise<void> {
 
     const pricer: Pricer = new PricersMap[ traderName ]();
     pricer.name = traderName;
@@ -149,7 +160,7 @@ export class AIO {
     while( true ) {
       try {
         const bookData: BookData = await pricer.getBook();
-        const trader: Trader = this.traders.get( traderName );
+        const trader: CCXTTrader = this.traders.get( traderName );
         const usage: boolean = this.checkPriceAndCountUsage( traderName, bookData );
         if ( false === usage ) {
           reportLatestPrice( traderName, bookData );
@@ -159,9 +170,10 @@ export class AIO {
         reportError( e );
       }
     }
+
   }
 
-  private checkPriceAndCountUsage( name: TradeName, data: BookData ): boolean {
+  private checkPriceAndCountUsage( name: Exchanges, data: BookData ): boolean {
 
     let result: boolean = false;
 
